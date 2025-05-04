@@ -1,0 +1,125 @@
+.login-container {
+    display: flex;
+    flex-direction: row;
+    width: 75%;
+    font-size: 1rem;
+    background-color: #d9d9d9;
+    margin-top: 2.5rem;{
+}
+
+.login-panel {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 70%;
+    padding: 2rem;
+    gap: 3rem;
+}
+
+.header-label {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.header-label-sub {
+    font-size: 1.3rem;
+    font-weight: 500;
+    height: fit-content;
+}
+
+.header-label-message {
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+.login-returning {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 5px;
+}
+
+.login-form-group {
+    display: flex;
+    flex-direction: column;
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin-top: 14px;
+}
+
+.login-form-group input {
+    outline: none;
+    border: none;
+    background-color: #d9d9d9;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 1.4rem;
+}
+
+.login-btn-01 {
+    all: unset;
+    width: 60%;
+    height: 3.5rem;
+    background-color: black;
+    color: white;
+    font-size: 1.55rem;
+    text-align: center;
+    border-radius: 5px;
+    margin-top: 18px;
+}
+
+.login-btn-01:hover {
+    background-color: #fae8f5;
+    color: black;
+    cursor: pointer;
+}
+
+.login-new {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 1.2rem;
+    border-radius: 5px;
+    height: fit-content;
+}
+
+.login-shortcut {
+    background-color: white;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.shortcut-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 75%;
+    border-radius: 5px;
+    background-color: #d9d9d9;
+    padding: 6px;
+}
+
+.shortcut-btn {
+    all: unset;
+    width: 90%;
+    font-size: 1.5rem;
+    font-weight: 300;
+    height: 3.8rem;
+    border: 1px solid black;
+    padding-left: 16px;
+    margin: 4px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.shortcut-btn:hover {
+    text-decoration: underline;
+    font-weight: 400;
+}
+
+

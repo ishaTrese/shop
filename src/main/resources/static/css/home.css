@@ -1,0 +1,104 @@
+.banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    height: 290px;
+    background-color: #d9d9d9;
+}
+
+.welcome {
+    font-family: 'CrimsonPro';
+    font-size: 60px;
+    font-weight: 900;
+}
+
+.sub-message {
+    font-family: 'PinyonScript';
+    font-size: 40px;
+}
+
+.categories-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.categories-label {
+    font-size: 40px;
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+
+.category-list {
+    display: flex;
+    gap: 1rem;
+}
+
+.category {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 380px;
+    background-color: #d9d9d9;
+    margin-bottom: 5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.category::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: transform .1s ease-in;
+    z-index: 0;
+}
+
+.category-type {
+    margin-top: auto;
+    font-size: 24px;
+    font-weight: 300;
+    width: 100%;
+    padding-left: 12px;
+    padding-bottom: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.category.bracelets::before {
+    background-image: url("../images/bracelet.png");
+}
+
+.category.earrings::before {
+    background-image: url("../images/earring.png");
+}
+
+.category.necklaces::before {
+    background-image: url("../images/necklace.png");
+}
+
+.category.rings::before {
+    background-image: url("../images/ring.png");
+}
+
+.category:hover::before {
+    transform: scale(1.15);
+}
+
+.category:hover {
+    opacity: 0.95;
+    outline: 1px solid #818181;
+}
+
+.category:hover .category-type {
+    text-decoration: underline;
+}

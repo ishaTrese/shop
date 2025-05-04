@@ -1,0 +1,17 @@
+<nav class="navbar" xmlns:th="http://www.thymeleaf.org" th:fragment="navbar">
+    <a href="/"> <div class="brand">GLIMORA</div></a>
+    <div class="commerce">
+        <a href="/account" class="commerce-item">
+            <img th:src="@{/images/user.svg}" alt="User">
+            <span>My Account</span>
+        </a>
+        <a href="/cart" class="commerce-item">
+            <img th:src="@{/images/shopping-cart.svg}" alt="Cart">
+            <span>Shopping Cart</span>
+        </a>
+        <a href="/checkout" class="commerce-item">
+            <img th:src="@{/images/shopping-bag.svg}" alt="Checkout">
+            <span>Checkout</span>
+        </a>
+    </div>
+</nav>

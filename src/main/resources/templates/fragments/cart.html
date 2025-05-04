@@ -1,0 +1,39 @@
+<div class="cart-container" xmlns:th="http://www.thymeleaf.org" th:fragment="cart">
+    <table class="cart-table">
+        <tr>
+            <th class="header-product">Product</th>
+            <th class="header-price">Price</th>
+            <th class="header-quantity">Quantity</th>
+            <th class="header-fee">Shipping Fee</th>
+            <th class="header-total">Total</th>
+            <th class="header-remove">Remove</th>
+        </tr>
+        <tr>
+            <td class="value-product">Alice</td>
+            <td class="value-price">1000</td>
+            <td class="value-quantity">1</td>
+            <td class="value-fee">10</td>
+            <td class="value-total">1010</td>
+            <td class="value-remove">X</td>
+        </tr>
+    </table>
+    <div class="calculation-container">
+    <table class="calculation-table">
+            <tbody>
+            <tr>
+                <td class="calculation-key">Subtotal:</td>
+                <td class="calculation-value">PHP 1010.00</td>
+            </tr>
+            <tr>
+                <td class="calculation-key">Tax (3%):</td>
+                <td class="calculation-value">PHP 30.29</td>
+            </tr>
+            <tr class="calculation-total">
+                <td class="calculation-key">Total:</td>
+                <td class="calculation-value">PHP: 1040.29</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a href="/checkout"><div class="table-checkout"><span>CHECKOUT</span></div></a>
+</div>

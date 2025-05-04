@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/png" th:href="@{/images/icon.png}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/normalize.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <title th:text="'Glimora | ' + ${title}"></title>
+</head>
+     <body>
+         <div class="container">
+             <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+             <div th:replace="~{fragments/search :: search}"></div>
+
+             <div class="division"></div>
+
+             <!-- HOME -->
+             <div class="content" th:if="${contentType == 'home'}">
+                 <div th:replace="~{fragments/home :: banner}"></div>
+                 <div th:replace="~{fragments/home :: categories}"></div>
+             </div>
+             <!-- CATALOG -->
+             <div class="content" th:if="${contentType == 'catalog'}">
+                 <span class="navigate">
+                     <a href="/home" class="navigate-nodes">HOME</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/categories" class="navigate-nodes">CATEGORIES</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a th:href="@{/categories/{name}(name=${node})}" class="navigate-nodes" th:text="${nodeName}"></a>
+                 </span>
+                 <div th:replace="~{fragments/catalog :: catalog(category=${node})}"></div>
+             </div>
+             <!-- ACCOUNT -->
+             <div class="content" th:if="${contentType == 'account'}">
+                 <span class="navigate">
+                     <a href="/home" class="navigate-nodes">HOME</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/account" class="navigate-nodes">ACCOUNT</a>
+                 </span>
+             </div>
+             <!-- CART -->
+             <div class="content" th:if="${contentType == 'cart'}">
+                 <span class="navigate">
+                     <a href="/home" class="navigate-nodes">HOME</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="cart" class="navigate-nodes">CART</a>
+                 </span>
+                 <div th:replace="~{fragments/cart :: cart}"></div>
+             </div>
+             <!-- CHECKOUT -->
+             <div class="content" th:if="${contentType == 'checkout'}">
+                 <span class="navigate">
+                     <a href="/home" class="navigate-nodes">HOME</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/checkout" class="navigate-nodes">CHECKOUT</a>
+                 </span>
+             </div>
+             <!-- LOGIN -->
+             <div class="content" th:if="${contentType == 'login'}">
+                 <span class="navigate">
+                     <a href="/home" class="navigate-nodes">HOME</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/account" class="navigate-nodes">ACCOUNT</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/account/login" class="navigate-nodes">LOGIN</a>
+                 </span>
+                 <div th:replace="~{fragments/login :: login}"></div>
+             </div>
+         </div>
+     </body>
+</html>

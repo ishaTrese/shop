@@ -1,0 +1,34 @@
+<div class="login-container" xmlns:th="http://www.thymeleaf.org" th:fragment="login">
+    <div class="login-panel">
+        <div class="login-returning">
+            <span class="header-label">Returning Customer</span>
+            <span class="header-label-sub">I am a returning customer</span>
+            <form class="login-returning-form">
+                <div class="login-form-group">
+                    <label for="login-email">Email address</label>
+                    <input autocomplete="off" type="email" id="login-email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="login-form-group">
+                    <label for="login-password">Password</label>
+                    <input autocomplete="off" type="password" id="login-password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-btn-01">Sign In</button>
+            </form>
+        </div>
+        <div class="login-new">
+            <span class="header-label">New Customer</span>
+            <span class="header-label-sub">Register Account</span>
+            <span class="header-label-message">By creating an account you will
+            be able to shop  faster and be up to date on an order's status.</span>
+            <button class="login-btn-01">Continue</button>
+        </div>
+    </div>
+    <div class="login-shortcut">
+        <div class="shortcut-container">
+            <button class="shortcut-btn">Login</button>
+            <button class="shortcut-btn">Sign up</button>
+            <button class="shortcut-btn">My Account</button>
+        </div>
+    </div>
+</div>

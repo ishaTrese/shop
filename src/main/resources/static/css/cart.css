@@ -1,0 +1,110 @@
+.cart-container {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    font-size: 1.2rem;
+    background-color: #d9d9d9;
+    margin-top: 2.5rem;
+}
+
+.cart-table {
+    width: 100%;
+    padding: 0;
+    border-collapse: collapse;
+}
+
+.header-product {
+    width: 50%;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid black;
+}
+
+.header-price {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid black;
+}
+.header-quantity {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid black;
+}
+.header-fee {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid black;
+}
+.header-total {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid black;
+}
+.header-remove {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid black;
+}
+
+.value-product {
+    width: 50%;
+    text-align: left;
+    padding: 8px 12px 8px 12px;
+}
+.value-price {
+    text-align: left;
+    padding: 8px 12px 8px 12px;
+}
+.value-quantity {
+    text-align: left;
+    padding: 8px 12px 8px 12px;
+}
+.value-fee {
+    text-align: left;
+    padding: 8px 12px 8px 12px;
+}
+.value-total {
+    text-align: left;
+    padding: 8px 12px 8px 12px;
+}
+.value-remove {
+    text-align: left;
+    padding: 8px 12px 8px 12px;
+}
+
+.table-checkout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 3.5rem;
+    background-color: black;
+    color: white;
+    width: 100%
+}
+
+.calculation-container {
+    width: 100%;
+    border-top: 1px solid black;
+    padding: 0.5rem 0;
+}
+.calculation-table {
+  width: auto;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: 0;
+  font-weight: 300;
+}
+
+.calculation-key {
+    padding-right: 0.5rem;
+    text-align: right;
+}
+
+.calculation-value {
+    padding-right: 2rem;
+    text-align: left;
+}
+
+.calculation-total {
+    font-weight: 600;
+}
