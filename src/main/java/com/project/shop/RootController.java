@@ -48,7 +48,7 @@ public class RootController {
     public String account(Model model) {
         model.addAttribute("title", "Account");
         model.addAttribute("contentType", "account");
-        return "index";
+        return "redirect:/account/login"; // TODO: redirect to login for now since auth system is not yet implemented
     }
 
     @GetMapping("/cart")
@@ -74,7 +74,7 @@ public class RootController {
 
     @GetMapping("/account/signup")
     public String signup(Model model) {
-        model.addAttribute("title", "Login");
+        model.addAttribute("title", "Signup");
         model.addAttribute("contentType", "signup");
         return "index";
     }

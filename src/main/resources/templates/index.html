@@ -45,7 +45,7 @@
                  <span class="navigate">
                      <a href="/home" class="navigate-nodes">HOME</a>
                      <img th:src="@{/images/chevron-right.svg}" alt="User">
-                     <a href="cart" class="navigate-nodes">CART</a>
+                     <a href="cart" class="navigate-nodes">SHOPPING CART</a>
                  </span>
                  <div th:replace="~{fragments/cart :: cart}"></div>
              </div>
@@ -54,8 +54,11 @@
                  <span class="navigate">
                      <a href="/home" class="navigate-nodes">HOME</a>
                      <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/cart" class="navigate-nodes">SHOPPING CART</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
                      <a href="/checkout" class="navigate-nodes">CHECKOUT</a>
                  </span>
+                 <div th:replace="~{fragments/checkout:: checkout}"></div>
              </div>
              <!-- LOGIN -->
              <div class="content" th:if="${contentType == 'login'}">
@@ -67,6 +70,17 @@
                      <a href="/account/login" class="navigate-nodes">LOGIN</a>
                  </span>
                  <div th:replace="~{fragments/login :: login}"></div>
+             </div>
+             <!-- SIGNUP -->
+             <div class="content" th:if="${contentType == 'signup'}">
+                 <span class="navigate">
+                     <a href="/home" class="navigate-nodes">HOME</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/account" class="navigate-nodes">ACCOUNT</a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a href="/account/signup" class="navigate-nodes">SIGNUP</a>
+                 </span>
+                 <div th:replace="~{fragments/signup:: signup}"></div>
              </div>
          </div>
      </body>

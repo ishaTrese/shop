@@ -1,0 +1,68 @@
+<div class="signup-container" xmlns:th="http://www.thymeleaf.org" th:fragment="signup">
+    <div class="signup-panel">
+        <div class="signup-header">
+            <div><h1>Your Personal Details</h1></div>
+            <div><h1>Your Address</h1></div>
+        </div>
+        <div class="signup-form">
+            <div class="signup-form-col">
+                <div class="signup-input">
+                    <label for="first-name">First Name:</label>
+                    <input type="text" id="first-name" name="first-name">
+                </div>
+                <div class="signup-input">
+                    <label for="last-name">Last Name:</label>
+                    <input type="text" id="last-name" name="last-name">
+                </div>
+                <div class="signup-input">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                <div class="signup-input">
+                    <label for="mobile">Mobile Number:</label>
+                    <input type="tel" id="mobile" name="mobile">
+                </div>
+            </div>
+
+            <div class="signup-form-col">
+                <div class="signup-input">
+                    <label for="street">Building/Street:</label>
+                    <input type="text" id="street" name="street">
+                </div>
+                <div class="signup-input">
+                    <label for="barangay">Barangay/District:</label>
+                    <input type="text" id="barangay" name="barangay">
+                </div>
+                <div class="signup-input">
+                    <label for="city">City/Municipality:</label>
+                    <input type="text" id="city" name="city">
+                </div>
+                <div class="signup-input">
+                    <label for="postal-code">Postal Code:</label>
+                    <input type="text" id="postal-code" name="postal-code">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="login-shortcut">
+        <div class="shortcut-container">
+            <a href="/account/login" class="shortcut-btn">Login</a>
+            <a href="/account/signup" class="shortcut-btn">Sign up</a>
+            <a href="/account" class="shortcut-btn">My Account</a>
+        </div>
+
+        <div class="signup-password">
+            <h2>Your Password</h2>
+            <div class="signup-password-col">
+                <label for="signup-password">Password: </label>
+                <input type="text" id="signup-password" name="password">
+            </div>
+            <div class="signup-password-col">
+                <label for="signup-password-confirm">Confirm Password: </label>
+                <input type="text" id="signup-password-confirm" name="confirm-password">
+            </div>
+            <button class="signup-btn">Sign up</button>
+    </div>
+    </div>
+</div>

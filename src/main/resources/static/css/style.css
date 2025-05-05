@@ -6,6 +6,8 @@
 @import url("./navigate.css");
 @import url("./cart.css");
 @import url("./login.css");
+@import url("./signup.css");
+@import url("./checkout.css");
 
 body {
   font-family: 'Inter-24pt', sans-serif;

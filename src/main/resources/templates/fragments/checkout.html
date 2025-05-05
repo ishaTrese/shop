@@ -1,0 +1,27 @@
+<div class="checkout-container" xmlns:th="http://www.thymeleaf.org" th:fragment="checkout">
+    <div class="checkout-shipping">
+        <h1>Shipping Details</h1>
+        <input placeholder="Full Name" id="shipping-full-name">
+        <input placeholder="Address" id="shipping-address">
+        <input placeholder="Email" id="shipping-email">
+        <input placeholder="Mobile Number" id="shipping-mobile_number">
+    </div>
+    <div class="checkout-payment">
+        <h1>Payment</h1>
+        <div class="checkout-card">
+            <h3 class="payment-label">
+                Credit/Debit Card
+            </h3>
+            <input placeholder="Card Number" id="card-number">
+            <div class="card-security">
+                <input placeholder="Expiry Date (MM/YY)" id="card-expiry">
+                <input placeholder="CVV" id="card-cvv">
+            </div>
+        </div>
+
+        <button class="checkout-place-order">
+            Place Order
+        </button>
+
+    </div>
+</div>
