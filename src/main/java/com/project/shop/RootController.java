@@ -6,6 +6,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 @Controller
@@ -78,4 +80,10 @@ public class RootController {
         model.addAttribute("contentType", "signup");
         return "index";
     }
-}
+
+    @PostMapping("/api/signup")
+    public String signup(@RequestBody String requestBody) {
+        System.out.println("Raw Request Body: " + requestBody);
+        // Parse the JSON string manually (e.g., using Jackson or Gson)
+        return "Received raw JSON!";
+    }}
