@@ -2,7 +2,7 @@ package com.project.shop;
 
 import java.util.List;
 
-public interface UserDAO {
+public interface OrderDAO {
     int addUser(User user); // Returns generated ID
     User getUserById(int userId);
     User getUserByEmail(String email);
