@@ -108,3 +108,7 @@
 .calculation-total {
     font-weight: 600;
 }
+
+.remove-from-cart-btn {
+    min-width: 50%;
+}

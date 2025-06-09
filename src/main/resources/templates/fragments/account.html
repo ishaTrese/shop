@@ -1,0 +1,36 @@
+<div class="account-container" xmlns:th="http://www.thymeleaf.org" th:fragment="account">
+    <div class="account-panel">
+        <div class="account-header">
+            <div><h1>My Account</h1></div>
+        </div>
+        <div class="account-form">
+            <div class="account-form-col">
+                <table class="account-data">
+                    <tr>
+                        <td class="key">Full Name</td>
+                        <td class="value" th:text="${name}"></td>
+                    </tr>
+                    <tr>
+                        <td class="key">Address</td>
+                        <td class="value" th:text="${address}"></td>
+                    </tr>
+                    <tr>
+                        <td class="key">Email</td>
+                        <td class="value" th:text="${email}"></td>
+                    </tr>
+                    <tr>
+                        <td class="key">Mobile Number</td>
+                        <td class="value" th:text="${phone}"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="login-shortcut">
+        <div class="shortcut-container">
+            <a href="/account/orders" class="shortcut-btn">Orders</a>
+            <a href="/cart" class="shortcut-btn">Cart</a>
+            <a href="/home" class="shortcut-btn logout-btn">Logout</a>
+        </div>
+    </div>
+</div>

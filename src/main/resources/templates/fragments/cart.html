@@ -8,35 +8,39 @@
             <th class="header-total">Total</th>
             <th class="header-remove">Remove</th>
         </tr>
-        <tr>
-            <td class="value-product">Alice</td>
-            <td class="value-price">1000</td>
-            <td class="value-quantity">1</td>
-            <td class="value-fee">10</td>
-            <td class="value-total">1010</td>
-            <td class="value-remove">X</td>
+        <tr th:each="item : ${cartItems}">
+            <td class="value-product" th:text="${item.name}">Product Name</td>
+            <td class="value-price" th:text="'₱' + ${item.price}">0.00</td>
+            <td class="value-quantity" th:text="${item.quantity}">0</td>
+            <td class="value-fee" th:text="${item.shippingFee}">0.00</td>
+            <td class="value-total" th:text="'₱' + ${item.total}">₱ 0.00</td>
+            <td class="value-remove">
+                <button class="remove-from-cart-btn"
+                        th:attr="data-index=${item['index']}, data-category=${item['category']}">
+                    X
+                </button>
+            </td>
+
         </tr>
     </table>
+
     <div class="calculation-container">
-    <table class="calculation-table">
+        <table class="calculation-table">
             <tbody>
             <tr>
                 <td class="calculation-key">Subtotal:</td>
-                <td class="calculation-value">PHP 1010.00</td>
+                <td class="calculation-value" th:text="'PHP ' + ${subtotal}">PHP 0.00</td>
             </tr>
             <tr>
-                <td class="calculation-key">Tax (3%):</td>
-                <td class="calculation-value">PHP 30.29</td>
+                <td class="calculation-key">Tax (<span th:text="${tax}">0</span>%):</td>
+                <td class="calculation-value" th:text="'PHP ' + ${taxAmount}">PHP 0.00</td>
             </tr>
             <tr class="calculation-total">
                 <td class="calculation-key">Total:</td>
-                <td class="calculation-value">PHP: 1040.29</td>
+                <td class="calculation-value" th:text="'PHP ' + ${total}">PHP 0.00</td>
             </tr>
             </tbody>
         </table>
     </div>
     <a href="/checkout"><div class="table-checkout"><span>CHECKOUT</span></div></a>
-</div>
-
-<div class="cart-container" xmlns:th="http://www.thymeleaf.org" th:fragment="cart02">
 </div>

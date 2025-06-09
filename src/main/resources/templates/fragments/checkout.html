@@ -1,10 +1,10 @@
 <div class="checkout-container" xmlns:th="http://www.thymeleaf.org" th:fragment="checkout">
     <div class="checkout-shipping">
         <h1>Shipping Details</h1>
-        <input placeholder="Full Name" id="shipping-full-name">
-        <input placeholder="Address" id="shipping-address">
-        <input placeholder="Email" id="shipping-email">
-        <input placeholder="Mobile Number" id="shipping-mobile_number">
+        <input placeholder="Full Name" id="shipping-full-name" th:value="${name}">
+        <input placeholder="Address" id="shipping-address" th:value="${address}">
+        <input placeholder="Email" id="shipping-email" th:value="${email}">
+        <input placeholder="Mobile Number" id="shipping-mobile_number" th:value="${number}">
     </div>
     <div class="checkout-payment">
         <h1>Payment</h1>

@@ -1,0 +1,50 @@
+.account-container {
+    display: flex;
+    flex-direction: row;
+    width: 75%;
+    font-size: 1rem;
+    margin-top: 2.5rem;
+}
+
+.account-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 70%;
+    background-color: #d9d9d9;
+}
+
+.account-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    padding: 1.4rem;
+    border-bottom: 1px solid black;
+}
+
+.account-form {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.account-form-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 1rem;
+}
+
+.key {
+    font-size: 1.5rem;
+    font-weight: 300;
+    width: 250px;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: 300;
+    width: 250px;
+}

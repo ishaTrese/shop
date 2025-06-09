@@ -7,7 +7,10 @@
 @import url("./cart.css");
 @import url("./login.css");
 @import url("./signup.css");
+@import url("./account.css");
 @import url("./checkout.css");
+@import url("./product.css");
+@import url("./orders.css");
 
 body {
   font-family: 'Inter-24pt', sans-serif;

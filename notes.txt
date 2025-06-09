@@ -1,0 +1,67 @@
+CREATE DATABASE shop; create database
+CREATE DATABASE shop;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    mobile_number VARCHAR(20),
+    building_street VARCHAR(255),
+    barangay_district VARCHAR(255),
+    city_municipality VARCHAR(255),
+    postal_code VARCHAR(10),
+    password VARCHAR(255) NOT NULL,
+
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_users_email ON users (email);
+CREATE TABLE cart_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    user_id INT NOT NULL,                              
+    product_index INT NOT NULL,             
+    product_name VARCHAR(255) NOT NULL,
+    category VARCHAR(100),                     
+    price DECIMAL(10, 2) NOT NULL,          
+    quantity INT NOT NULL DEFAULT 1,        
+
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+-- Table for storing main order details
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    -- Shipping Information (denormalized from user's current address for historical accuracy)
+    shipping_full_name VARCHAR(255) NOT NULL,
+    shipping_address VARCHAR(255) NOT NULL,
+    shipping_email VARCHAR(255) NOT NULL,
+    shipping_mobile_number VARCHAR(20) NOT NULL,
+    -- Timestamps for tracking
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- The order_items table remains the same as it correctly captures product details for the order.
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    product_index INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
