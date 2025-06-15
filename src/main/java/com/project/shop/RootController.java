@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 @Controller
 public class RootController {
     @GetMapping("/")
@@ -37,6 +38,25 @@ public class RootController {
             name.equalsIgnoreCase("necklaces") ||
             name.equalsIgnoreCase("bracelets"))
         {
+            String type;
+            switch (name) {
+                case "bracelets":
+                    type = "A";
+                    break;
+                case "earrings":
+                    type = "B";
+                    break;
+                case "necklaces":
+                    type = "C";
+                    break;
+                case "rings":
+                    type = "D";
+                    break;
+                default:
+                    type = "none";
+                    break;
+            }
+            model.addAttribute("type", type);
             model.addAttribute("title", StringUtils.capitalize(name));
             model.addAttribute("contentType", "catalog");
             model.addAttribute("node", name.toLowerCase());
@@ -164,17 +184,56 @@ public class RootController {
         return "index";
     }
 
-    @GetMapping("/product/{name}")
-    public String product(@PathVariable String name, Model model) {
-        model.addAttribute("title", name);
+    @GetMapping("/product/{index}")
+    public String productController(@PathVariable String index, Model model) {
         model.addAttribute("contentType", "product");
-
-        model.addAttribute("category", "Rings");
-        model.addAttribute("description", "product");
-        model.addAttribute("price", "product");
-
+        String[] parts = index.split("-");
+        String type = parts[1];
+        int idx = Integer.parseInt(parts[0]);
+        String name;
+        String description;
+        String price;
+        String category;
+        switch (type) {
+            case "A":
+                name = AppConfig.bracelets[idx][0];
+                description = AppConfig.bracelets[idx][1];
+                price = AppConfig.bracelets[idx][2];
+                category = "bracelets";
+                break;
+            case "B":
+                name = AppConfig.earrings[idx][0];
+                description = AppConfig.earrings[idx][1];
+                price = AppConfig.earrings[idx][2];
+                category = "earrings";
+                break;
+            case "C":
+                name = AppConfig.necklaces[idx][0];
+                description = AppConfig.necklaces[idx][1];
+                price = AppConfig.necklaces[idx][2];
+                category = "necklaces";
+                break;
+            case "D":
+                name = AppConfig.rings[idx][0];
+                description = AppConfig.rings[idx][1];
+                price = AppConfig.rings[idx][2];
+                category = "rings";
+                break;
+            default:
+                name = "none";
+                description = "none";
+                price = "none";
+                category = "none";
+                break;
+        }
+        model.addAttribute("title", name);
+        model.addAttribute("description", description);
+        model.addAttribute("price", price);
+        model.addAttribute("category", category);
+        model.addAttribute("index", idx);
         return "index";
     }
+
 
     @GetMapping("/account/orders")
     public String orders(Model model) {

@@ -1,2 +1,30 @@
 <div class="product-container" xmlns:th="http://www.thymeleaf.org" th:fragment="product">
+    <div class="product-image">
+        <img th:src="@{/images/__${category}__/__${index}__.png}" alt="Product Image">
+    </div>
+
+    <div class="product-details">
+        <div class="description-section">
+            <h3>Description</h3>
+            <div class="description-text" th:text="${description}">
+            </div>
+        </div>
+
+        <div class="price-section" th:text="'PHP ' + ${price}">
+        </div>
+
+        <div class="quantity-section">
+            <h3>Quantity</h3>
+            <input type="number"
+                   name="quantity"
+                   class="quantity-input"
+                   value="1"
+                   min="1"
+                   required>
+        </div>
+
+        <button class="add-to-cart-btn">
+            Add to cart
+        </button>
+    </div>
 </div>

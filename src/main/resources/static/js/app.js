@@ -148,6 +148,61 @@ if (logoutBtn) {
         }
     });
 }
+
+const productAddToCart = document.querySelectorAll('button.add-to-cart-btn');
+if (productAddToCart) {
+    productAddToCart.forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const productParam = window.location.pathname.split('/').pop();
+            const [index, category] = productParam.split('-');
+            const itemIndex = parseInt(index);
+            let currentCategory;
+            switch (category) {
+                case 'A':
+                    currentCategory = 'bracelets';
+                    break;
+                case 'B':
+                    currentCategory = 'earrings';
+                    break;
+                case 'C':
+                    currentCategory = 'necklaces';
+                    break;
+                case 'D':
+                    currentCategory = 'rings';
+                    break;
+                default:
+                    currentCategory = 's';
+                    break;
+            }
+
+            const url = '/api/add-to-cart';
+            const quantity = document.querySelector('input.quantity-input');
+            const data = { index: itemIndex, quantity: quantity.value, category: currentCategory };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`Item added to cart!`);
+                } else {
+                    const errorData = await response.json();
+                    alert('Failed to add item to cart. Please try again.');
+                }
+            } catch (error) {
+                alert('A network error occurred. Please try again.');
+            }
+        });
+    });
+}
+
 const addToCartButtons = document.querySelectorAll('button.add-to-cart');
 
 function getCategoryFromUrl() {
@@ -183,7 +238,7 @@ if (addToCartButtons) {
 
                 if (response.ok) {
                     const result = await response.json();
-                    alert(`Item ${itemIndex} added to cart!`);
+                    alert(`Item added to cart!`);
                 } else {
                     const errorData = await response.json();
                     alert('Failed to add item to cart. Please try again.');
