@@ -34,24 +34,23 @@ CREATE TABLE cart_items (
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
--- Table for storing main order details
+
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10, 2) NOT NULL,
-    -- Shipping Information (denormalized from user's current address for historical accuracy)
+
     shipping_full_name VARCHAR(255) NOT NULL,
     shipping_address VARCHAR(255) NOT NULL,
     shipping_email VARCHAR(255) NOT NULL,
     shipping_mobile_number VARCHAR(20) NOT NULL,
-    -- Timestamps for tracking
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- The order_items table remains the same as it correctly captures product details for the order.
 CREATE TABLE IF NOT EXISTS order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,

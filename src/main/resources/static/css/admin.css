@@ -1,0 +1,396 @@
+.admin-container {
+    max-width: 1400px;
+    background: #d9d9d9;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.panel-tabs {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-start;
+    border-bottom: none;
+}
+
+.tab-button {
+    background-color: inherit;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    margin-bottom: -1px;
+    position: relative;
+    color: #4b5563;
+}
+
+.tab-button:hover {
+    background-color: #ddd;
+    color: #1f2937;
+}
+
+.tab-button.active-tab-button {
+    background-color: #ccc;
+    color: #1f2937;
+    border: 1px solid #ccc;
+    border-bottom-color: transparent;
+    cursor: default;
+}
+
+.panel-content {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    background-color: #ffffff;
+}
+
+.panel-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 16px;
+    padding: 16px 12px 0;
+}
+
+.panel-info-box {
+    background-color: #f9fafb;
+    padding: 16px;
+    border-radius: 8px;
+    color: #374151;
+    margin: 0 12px 24px;
+}
+
+.panel-info-text {
+    margin-bottom: 8px;
+}
+
+.panel-info-list {
+    list-style: disc;
+    list-style-position: inside;
+    margin-left: 0;
+    padding-left: 0;
+    line-height: 1.5;
+}
+.panel-info-list li {
+    margin-bottom: 4px;
+}
+
+.panel-info-note {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.order-search-box {
+    margin: 24px 12px 0;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.order-search-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 12px;
+}
+
+.order-search-input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.order-search-input {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+}
+
+.order-search-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 1px #4f46e5;
+}
+
+.order-search-button {
+    padding: 8px 16px;
+    background-color: #4f46e5;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    outline: none;
+}
+
+.order-search-button:hover {
+    background-color: #4338ca;
+}
+
+.order-search-button:focus {
+    box-shadow: 0 0 0 2px #4f46e5, 0 0 0 4px rgba(79, 70, 229, 0.4);
+}
+
+.table-container {
+    overflow-x: auto;
+    margin: 0 0 20px 0;
+    padding: 0 12px;
+}
+
+.order-table, .inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    background: #d9d9d9;
+    border: 1px solid black;
+}
+.order-table thead, .inventory-table thead {
+    background: #d9d9d9;
+}
+.order-table th, .inventory-table th {
+    color: black;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 18px 16px;
+    text-align: left;
+    border: 1px solid black;
+    position: relative;
+}
+.order-table th:not(:last-child)::after, .inventory-table th:not(:last-child)::after {
+    display: none;
+}
+.order-table tbody tr, .inventory-table tbody tr {
+    transition: all 0.2s ease;
+    border: 1px solid black;
+}
+.order-table tbody tr:last-child, .inventory-table tbody tr:last-child {
+    border-bottom: 1px solid black;
+}
+.order-table td, .inventory-table td {
+    padding: 16px;
+    vertical-align: middle;
+    border: 1px solid black;
+}
+
+.admin-order-no {
+    font-weight: 600;
+    color: black;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+.admin-date {
+    color: black;
+    font-size: 14px;
+    font-weight: 500;
+}
+.admin-amount {
+    font-weight: 700;
+    color: black;
+    font-size: 16px;
+}
+
+
+.admin-status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+.admin-status.pending { background: #fff3cd; color: #856404; }
+.admin-status.processing { background: #cce7ff; color: #0066cc; }
+.admin-status.shipped { background: #d4edda; color: #155724; }
+.admin-status.delivered { background: #d1ecf1; color: #0c5460; }
+.admin-status.cancelled { background: #f8d7da; color: #721c24; }
+
+.admin-status.status-default { background-color: #e5e7eb; color: #374151; }
+
+
+.admin-shipping {
+    color: #495057;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 200px;
+}
+.shipping-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
+}
+.shipping-address {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+
+@media (max-width: 1200px) {
+    .admin-shipping {
+        max-width: 150px;
+        font-size: 13px;
+    }
+}
+@media (max-width: 768px) {
+
+    .admin-container {
+        width: auto;
+        margin: 10px;
+        border-radius: 8px;
+        padding: 0;
+    }
+    .order-table th,
+    .order-table td,
+    .inventory-table th,
+    .inventory-table td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+    .order-table th,
+    .inventory-table th {
+        font-size: 11px;
+    }
+    .admin-order-no {
+        font-size: 12px;
+    }
+    .admin-amount {
+        font-size: 14px;
+    }
+    .admin-shipping {
+        max-width: 120px;
+        font-size: 12px;
+    }
+    .admin-status {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+    .inventory-stock-input {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    .inventory-update-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    .order-table, .inventory-table {
+        font-size: 11px;
+    }
+    .order-table th,
+    .order-table td,
+    .inventory-table th,
+    .inventory-table td {
+        padding: 8px 4px;
+    }
+    .admin-shipping {
+        max-width: 100px;
+    }
+    .panel-tabs .tab-button {
+        font-size: 14px;
+        padding: 10px 8px;
+    }
+    .panel-title {
+        font-size: 20px;
+    }
+    .panel-info-text, .panel-info-note, .no-orders-text, .no-items-text {
+        font-size: 12px;
+    }
+    .no-orders-title, .no-items-title {
+        font-size: 16px;
+    }
+}
+
+.no-orders, .no-inventory-items {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    background: #d9d9d9;
+}
+.no-orders h3, .no-items-title {
+    color: #495057;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+.no-orders p, .no-items-text {
+    margin: 0;
+    font-size: 14px;
+}
+
+
+.inventory-status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+}
+.status-low { background-color: #fecaca; color: #991b1b; }
+.status-normal { background-color: #d1fae5; color: #065f46; }
+.status-high { background-color: #bfdbfe; color: #1e40af; }
+
+.inventory-stock-input-cell {
+    width: 120px;
+}
+.inventory-stock-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+}
+.inventory-stock-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 1px #4f46e5;
+}
+
+.inventory-action-cell {
+    width: 100px;
+}
+.inventory-update-btn {
+    padding: 8px 12px;
+    background-color: #4f46e5;
+    color: #ffffff;
+    font-weight: 500;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+.inventory-update-btn:hover {
+    background-color: #4338ca;
+}
+.inventory-update-btn:focus {
+    box-shadow: 0 0 0 2px #4f46e5, 0 0 0 4px rgba(79, 70, 229, 0.4);
+}

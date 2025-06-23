@@ -11,6 +11,7 @@
 @import url("./checkout.css");
 @import url("./product.css");
 @import url("./orders.css");
+@import url("./admin.css");
 
 body {
   font-family: 'Inter-24pt', sans-serif;

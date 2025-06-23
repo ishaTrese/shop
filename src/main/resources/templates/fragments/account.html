@@ -28,6 +28,7 @@
     </div>
     <div class="login-shortcut">
         <div class="shortcut-container">
+            <a th:if="${isAdmin}" href="/admin-panel" class="shortcut-btn admin-panel-btn">Admin Panel</a>
             <a href="/account/orders" class="shortcut-btn">Orders</a>
             <a href="/cart" class="shortcut-btn">Cart</a>
             <a href="/home" class="shortcut-btn logout-btn">Logout</a>

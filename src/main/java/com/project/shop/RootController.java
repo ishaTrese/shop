@@ -1,5 +1,6 @@
 package com.project.shop;
 
+import com.project.model.ProductData;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -8,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,7 +87,11 @@ public class RootController {
         model.addAttribute("address", AppConfig.userAddress);
         model.addAttribute("email", AppConfig.userEmail);
         model.addAttribute("phone", AppConfig.userPhone);
-
+        if (AppConfig.userEmail.equalsIgnoreCase("admin@shop.com")) {
+            model.addAttribute("isAdmin", true);
+        } else {
+            model.addAttribute("isAdmin", false);
+        }
         return "index";
     }
 
@@ -227,6 +234,7 @@ public class RootController {
                 break;
         }
         model.addAttribute("title", name);
+        model.addAttribute("name", name);
         model.addAttribute("description", description);
         model.addAttribute("price", price);
         model.addAttribute("category", category);
@@ -299,4 +307,80 @@ public class RootController {
 
         return "index";
     }
+
+    @GetMapping("/admin-panel")
+    public String admin(Model model) {
+        int userId = AppConfig.getCurrentUser();
+        if (userId == 0) {
+            return "redirect:/account/login";
+        }
+        model.addAttribute("title", "Admin Panel");
+        model.addAttribute("contentType", "admin-panel");
+
+        if (!AppConfig.userEmail.equalsIgnoreCase("admin@shop.com")) {
+            return "redirect:/home";
+        }
+        List<Map<String, Object>> orders = new ArrayList<>();
+        try {
+            String getOrdersSql = "SELECT id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number FROM orders ORDER BY order_date DESC";
+            PreparedStatement getOrdersStmt = AppConfig.connection.prepareStatement(getOrdersSql);
+            ResultSet ordersRs = getOrdersStmt.executeQuery();
+
+            while (ordersRs.next()) {
+                int orderId = ordersRs.getInt("id");
+                LocalDateTime orderDate = ordersRs.getTimestamp("order_date").toLocalDateTime();
+                BigDecimal totalAmount = BigDecimal.valueOf(ordersRs.getFloat("total_amount"));
+                String shippingFullName = ordersRs.getString("shipping_full_name");
+                String shippingAddress = ordersRs.getString("shipping_address");
+                String shippingEmail = ordersRs.getString("shipping_email");
+                String shippingMobileNumber = ordersRs.getString("shipping_mobile_number");
+
+                Map<String, Object> order = new HashMap<>();
+
+                order.put("id", orderId);
+                order.put("orderDate", orderDate);
+                order.put("totalAmount", totalAmount);
+                order.put("shippingFullName", shippingFullName);
+                order.put("shippingAddress", shippingAddress);
+                order.put("shippingEmail", shippingEmail);
+                order.put("shippingMobileNumber", shippingMobileNumber);
+                order.put("status", "Processing");
+
+                List<Map<String, Object>> orderItems = new ArrayList<>();
+                String getOrderItemsSql = "SELECT product_name, category, price, quantity FROM order_items WHERE order_id = ?";
+                PreparedStatement getOrderItemsStmt = AppConfig.connection.prepareStatement(getOrderItemsSql);
+                getOrderItemsStmt.setInt(1, orderId);
+                ResultSet itemsRs = getOrderItemsStmt.executeQuery();
+
+                while (itemsRs.next()) {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("productName", itemsRs.getString("product_name"));
+                    item.put("category", itemsRs.getString("category"));
+                    item.put("price", BigDecimal.valueOf(itemsRs.getFloat("price")));
+                    item.put("quantity", itemsRs.getInt("quantity"));
+                    orderItems.add(item);
+                }
+                order.put("items", orderItems);
+                orders.add(order);
+
+                itemsRs.close();
+                getOrderItemsStmt.close();
+            }
+
+            ordersRs.close();
+            getOrdersStmt.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            model.addAttribute("errorMessage", "Failed to retrieve orders due to a database error.");
+        }
+
+        model.addAttribute("orders", orders);
+
+        InventoryService inventoryService = new InventoryService();
+        List<ProductData> products = inventoryService.getAllProducts();
+        model.addAttribute("products", products); // Pass the list to the Thymeleaf model
+        return "index";
+    }
+
 }

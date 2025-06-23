@@ -194,7 +194,7 @@ if (productAddToCart) {
                     alert(`Item added to cart!`);
                 } else {
                     const errorData = await response.json();
-                    alert('Failed to add item to cart. Please try again.');
+                    alert('Failed to add item to cart: ' + (errorData.message || 'Unknown error.'));
                 }
             } catch (error) {
                 alert('A network error occurred. Please try again.');
@@ -241,7 +241,7 @@ if (addToCartButtons) {
                     alert(`Item added to cart!`);
                 } else {
                     const errorData = await response.json();
-                    alert('Failed to add item to cart. Please try again.');
+                    alert('Failed to add item to cart: ' + (errorData.message || 'Unknown error.'));
                 }
             } catch (error) {
                 alert('A network error occurred. Please try again.');
@@ -375,7 +375,7 @@ if (placeOrderBtn) {
                 const result = await response.json();
                 console.log('Order placed successfully!', result);
                 alert('Your order has been placed successfully!');
-                window.location.href = '/account/orders'; // Redirect to an orders page
+                window.location.href = '/account/orders';
             } else {
                 const errorData = await response.json();
                 console.error('Order placement failed:', response.status, errorData);
@@ -386,4 +386,92 @@ if (placeOrderBtn) {
             alert('A network error occurred while placing your order. Please try again.');
         }
     });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const initialTabButton = document.querySelector('.panel-tabs .tab-button.active-tab-button');
+    if (initialTabButton) {
+        initialTabButton.click();
+    } else {
+        const firstTabButton = document.querySelector('.panel-tabs .tab-button');
+        if (firstTabButton) {
+            firstTabButton.click();
+        }
+    }
+});
+
+function openPanel(evt, panelName) {
+    let tabContents = document.getElementsByClassName("panel-content");
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].style.display = "none";
+    }
+
+    let tabButtons = document.getElementsByClassName("tab-button");
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active-tab-button");
+    }
+
+    document.getElementById(panelName).style.display = "block";
+
+    evt.currentTarget.classList.add("active-tab-button");
+}
+
+
+async function updateStock(productId) {
+    const stockInput = document.getElementById('stock-input-' + productId);
+
+    if (!stockInput) {
+        alert("Stock input field not found for product ID: " + productId);
+        return;
+    }
+
+    const newStock = parseInt(stockInput.value, 10);
+
+    if (isNaN(newStock) || newStock < 0) {
+        alert("Please enter a valid non-negative number for stock.");
+        return;
+    }
+
+    const row = stockInput.closest('tr');
+    if (!row) {
+        alert("Could not find table row for product ID: " + productId);
+        return;
+    }
+
+    const productNameElement = row.querySelector('.inventory-product-name');
+    const categoryElement = row.querySelector('.inventory-category');
+
+    if (!productNameElement || !categoryElement) {
+        alert("Could not find product name or category in the row.");
+        return;
+    }
+
+    const productName = productNameElement.textContent.trim();
+    const category = categoryElement.textContent.trim();
+
+    try {
+        const response = await fetch('/api/inventory/update-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                category: category,
+                productName: productName,
+                new_stock: newStock
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.message);
+            window.location.reload();
+        } else {
+            alert(data.message || "Failed to update stock. Unknown error.");
+        }
+    } catch (error) {
+        console.error('Error sending update request:', error);
+        alert("A network error occurred while communicating with the server. Please try again.");
+    }
 }

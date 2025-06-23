@@ -174,29 +174,65 @@ public class ApiController {
             return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        String name, price;
+        String[][] targetArray;
+        String name;
+        String price;
+        int currentPhysicalStock; // Represents the actual stock left in AppConfig
+
+        // Get the correct AppConfig array and extract product details including current stock
         switch (addRequest.category) {
             case "bracelets":
-                name = AppConfig.bracelets[addRequest.index][0];
-                price = AppConfig.bracelets[addRequest.index][2];
+                targetArray = AppConfig.bracelets;
                 break;
             case "earrings":
-                name = AppConfig.earrings[addRequest.index][0];
-                price = AppConfig.earrings[addRequest.index][2];
+                targetArray = AppConfig.earrings;
                 break;
             case "necklaces":
-                name = AppConfig.necklaces[addRequest.index][0];
-                price = AppConfig.necklaces[addRequest.index][2];
+                targetArray = AppConfig.necklaces;
                 break;
             case "rings":
-                name = AppConfig.rings[addRequest.index][0];
-                price = AppConfig.rings[addRequest.index][2];
+                targetArray = AppConfig.rings;
                 break;
             default:
                 return new ResponseEntity<>(
                         Response.message("Unknown category", RESPONSE_TYPE.ERROR),
                         HttpStatus.BAD_REQUEST
                 );
+        }
+
+        if (addRequest.index < 0 || addRequest.index >= targetArray.length) {
+            return new ResponseEntity<>(
+                    Response.message("Product index out of bounds for category " + addRequest.category, RESPONSE_TYPE.ERROR),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        name = targetArray[addRequest.index][0];
+        price = targetArray[addRequest.index][2];
+        try {
+            currentPhysicalStock = Integer.parseInt(targetArray[addRequest.index][3]);
+        } catch (NumberFormatException e) {
+            return new ResponseEntity<>(
+                    Response.message("Invalid stock data for product: " + name, RESPONSE_TYPE.ERROR),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+
+        // Validate requested quantity
+        if (addRequest.quantity <= 0) {
+            return new ResponseEntity<>(
+                    Response.message("Quantity to add must be at least 1.", RESPONSE_TYPE.ERROR),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
+        // --- Core Stock Check Logic ---
+        // We only allow adding if the physical stock is enough for the *new* quantity being requested.
+        if (currentPhysicalStock < addRequest.quantity) {
+            return new ResponseEntity<>(
+                    Response.message("Not enough stock for " + name + ". Available: " + currentPhysicalStock + ".", RESPONSE_TYPE.ERROR),
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
         try {
@@ -208,15 +244,19 @@ public class ApiController {
             ResultSet rs = checkStmt.executeQuery();
 
             if (rs.next()) {
-                int existingQuantity = rs.getInt("quantity");
+                // If item already in cart, update its quantity
+                int existingQuantityInCart = rs.getInt("quantity");
+                int newTotalQuantityInCart = existingQuantityInCart + addRequest.quantity;
+
                 String updateSql = "UPDATE cart_items SET quantity = ? WHERE user_id = ? AND product_index = ? AND category = ?";
                 PreparedStatement updateStmt = AppConfig.connection.prepareStatement(updateSql);
-                updateStmt.setInt(1, existingQuantity + addRequest.quantity);
+                updateStmt.setInt(1, newTotalQuantityInCart);
                 updateStmt.setInt(2, userId);
                 updateStmt.setInt(3, addRequest.index);
                 updateStmt.setString(4, addRequest.category);
                 updateStmt.executeUpdate();
             } else {
+                // If item not in cart, insert it
                 String insertSql = "INSERT INTO cart_items " +
                         "(user_id, product_index, product_name, category, price, quantity) " +
                         "VALUES (?, ?, ?, ?, ?, ?)";
@@ -230,8 +270,12 @@ public class ApiController {
                 insertStmt.executeUpdate();
             }
 
+            // Deduct stock from AppConfig after successful cart update/insert
+            // This is the only place stock is reduced.
+            targetArray[addRequest.index][3] = String.valueOf(currentPhysicalStock - addRequest.quantity);
+
             return new ResponseEntity<>(
-                    Response.message("Added to cart successfully!", RESPONSE_TYPE.SUCCESS),
+                    Response.message("Added " + addRequest.quantity + " of " + name + " to cart successfully! Available stock: " + (currentPhysicalStock - addRequest.quantity) + ".", RESPONSE_TYPE.SUCCESS),
                     HttpStatus.OK
             );
 
@@ -427,4 +471,72 @@ public class ApiController {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-}
+
+    @PostMapping("/inventory/update-stock")
+    public ResponseEntity<Response> updateStock(@RequestBody Map<String, Object> requestBody) {
+        String category = (String) requestBody.get("category");
+        String productName = (String) requestBody.get("productName");
+        Integer newStock = (Integer) requestBody.get("new_stock");
+
+        if (category == null || category.trim().isEmpty() ||
+                productName == null || productName.trim().isEmpty() ||
+                newStock == null || newStock < 0) {
+            Response errorResponse = Response.message(
+                    "Invalid request data. Please provide 'category', 'productName', and a non-negative 'new_stock'.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        String[][] targetArray = null;
+        String normalizedCategory = category.toLowerCase();
+
+        switch (normalizedCategory) {
+            case "bracelets":
+                targetArray = AppConfig.bracelets;
+                break;
+            case "earrings":
+                targetArray = AppConfig.earrings;
+                break;
+            case "necklaces":
+                targetArray = AppConfig.necklaces;
+                break;
+            case "rings":
+                targetArray = AppConfig.rings;
+                break;
+            default:
+                Response errorResponse = Response.message("Unknown product category: " + category, RESPONSE_TYPE.ERROR);
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        boolean productFound = false;
+        String foundProductName = null;
+
+        for (String[] item : targetArray) {
+            if (item.length >= 4 && item[0].equalsIgnoreCase(productName)) {
+                try {
+                    item[3] = String.valueOf(newStock);
+                    foundProductName = item[0];
+                    productFound = true;
+                    break;
+                } catch (NumberFormatException e) {
+                    Response errorResponse = Response.message("Internal data error: Existing stock for '" + item[0] + "' is not a valid number.", RESPONSE_TYPE.ERROR);
+                    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        }
+
+        if (productFound) {
+            Response successResponse = Response.message(
+                    "Stock for '" + foundProductName + "' updated successfully to " + newStock + ".",
+                    RESPONSE_TYPE.SUCCESS
+            );
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        } else {
+            Response errorResponse = Response.message(
+                    "Product '" + productName + "' not found in category '" + category + "'.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+    }}

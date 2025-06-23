@@ -1,0 +1,99 @@
+<div class="admin-container" xmlns:th="http://www.thymeleaf.org" th:fragment="admin">
+    <div class="panel-tabs">
+        <button class="tab-button active" onclick="openPanel(event, 'inventoryManagement')">Inventory Management</button>
+        <button class="tab-button" onclick="openPanel(event, 'viewAllOrders')">View All Orders</button>
+    </div>
+
+    <div id="inventoryManagement" class="panel-content" style="display: none;">
+        <h2 class="panel-title">Inventory Management</h2>
+        <div class="table-container">
+            <table class="inventory-table">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Change Stock</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td class="inventory-product-name" th:text="${product.name}">Example Product A</td>
+                    <td class="inventory-category" th:text="${product.category}">Electronics</td>
+                    <td class="inventory-stock-qty" th:text="${product.stock}">50</td>
+                    <td>
+                    <span class="inventory-status-badge"
+                          th:with="stock=${product.stock}"
+                          th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
+                          th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                        Normal
+                    </span>
+                    </td>
+                    <td class="inventory-stock-input-cell">
+                        <input type="number"
+                               th:id="'stock-input-' + ${product.id}"
+                               th:value="${product.stock}"
+                               min="0"
+                               class="inventory-stock-input">
+                    </td>
+                    <td class="inventory-action-cell">
+                        <button th:onclick="'updateStock(' + ${product.id} + ')'"
+                                class="inventory-update-btn">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(products)}">
+                    <td colspan="6" class="no-inventory-items">
+                        <h3 class="no-items-title">No products found</h3>
+                        <p class="no-items-text">No products are currently in the inventory.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="viewAllOrders" class="panel-content">
+        <h2>View All Orders</h2>
+        <table class="order-table">
+            <thead>
+            <tr>
+                <th>ORDER NUMBER</th>
+                <th>ORDER DATE</th>
+                <th>TOTAL AMOUNT</th>
+                <th>STATUS</th>
+                <th>SHIPPING ADDRESS</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td class="admin-order-no" th:text="'SHOP-ORD-' + ${order.id}">SHOP-ORD-001</td>
+                <td class="admin-date" th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy')}">Jun 23, 2025</td>
+                <td class="admin-amount" th:text="${'₱' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₱9,100.00</td>
+                <td>
+                    <span class="admin-status"
+                          th:class="${'admin-status ' + (#strings.toLowerCase(order.status != null ? order.status : 'pending'))}"
+                          th:text="${order.status != null ? order.status : 'Pending'}">
+                        Processing
+                    </span>
+                </td>
+                <td class="admin-shipping">
+                    <div class="shipping-name" th:text="${order.shippingFullName}">Brenda Ray</div>
+                    <div class="shipping-address" th:text="${order.shippingAddress}">1435 Martha Ellen Drive, Reno, Nevada, 89501</div>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(orders)}">
+                <td colspan="5" class="no-orders">
+                    <h3>No orders found</h3>
+                    <p>No orders have been placed yet.</p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
