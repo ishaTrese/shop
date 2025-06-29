@@ -1,4 +1,19 @@
 <div class="search" xmlns:th="http://www.thymeleaf.org" th:fragment="search">
-    <img class="search-icon" th:src="@{/images/search.svg}" alt="Search">
-    <input autocomplete="off" class="search-input" type="text" name="query" placeholder="Search" />
+    <div class="search-background-overlay" id="searchBackgroundOverlay"></div>
+    <div class="search-button" id="searchButton">
+        <img class="search-icon" th:src="@{/images/search.svg}" alt="Search">
+        <span class="search-placeholder">Search products...</span>
+    </div>
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-header">
+            <div class="search-input-container">
+                <img class="search-icon" th:src="@{/images/search.svg}" alt="Search">
+                <input autocomplete="off" class="search-input" type="text" name="query" placeholder="Search products..." />
+            </div>
+            <button class="close-search" id="closeSearch">×</button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <!-- Search results will be populated here -->
+        </div>
+    </div>
 </div>

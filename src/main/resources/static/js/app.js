@@ -525,3 +525,147 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchButton = document.getElementById('searchButton');
+    const searchModal = document.getElementById('searchModal');
+    const searchResults = document.getElementById('searchResults');
+    const searchBackgroundOverlay = document.getElementById('searchBackgroundOverlay');
+    const searchInput = document.querySelector('.search-input');
+    const closeSearch = document.getElementById('closeSearch');
+    let allProducts = [];
+    let searchTimeout;
+
+    // Load all products when page loads
+    loadAllProducts();
+
+    if (searchButton) {
+        // Show modal when search button is clicked
+        searchButton.addEventListener('click', function() {
+            showSearchModal();
+        });
+    }
+
+    if (searchInput) {
+        // Handle input changes
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                if (query.length > 0) {
+                    performSearch(query);
+                } else {
+                    showAllProducts();
+                }
+            }, 300);
+        });
+
+        // Focus input when modal opens
+        searchInput.addEventListener('focus', function() {
+            if (this.value.trim() === '') {
+                showAllProducts();
+            }
+        });
+    }
+
+    if (closeSearch) {
+        // Close modal when close button is clicked
+        closeSearch.addEventListener('click', function() {
+            hideSearchModal();
+        });
+    }
+
+    // Hide modal when clicking outside
+    document.addEventListener('click', function(event) {
+        if (searchBackgroundOverlay && event.target === searchBackgroundOverlay) {
+            hideSearchModal();
+        }
+    });
+
+    // Hide modal when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            hideSearchModal();
+        }
+    });
+
+    async function loadAllProducts() {
+        try {
+            const response = await fetch('/api/products');
+            if (response.ok) {
+                allProducts = await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+        }
+    }
+
+    function showSearchModal() {
+        if (searchModal && searchBackgroundOverlay) {
+            searchModal.classList.add('active');
+            searchBackgroundOverlay.classList.add('active');
+            searchInput.focus();
+            showNoResults();
+        }
+    }
+
+    function hideSearchModal() {
+        if (searchModal && searchBackgroundOverlay) {
+            searchModal.classList.remove('active');
+            searchBackgroundOverlay.classList.remove('active');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+        }
+    }
+
+    function performSearch(query) {
+        const results = allProducts.filter(product => {
+            const searchTerm = query.toLowerCase();
+            return product.name.toLowerCase().includes(searchTerm) ||
+                   product.category.toLowerCase().includes(searchTerm) ||
+                   product.description.toLowerCase().includes(searchTerm);
+        });
+
+        displaySearchResults(results);
+    }
+
+    function showAllProducts() {
+        displaySearchResults(allProducts.slice(0, 10)); // Show first 10 products
+    }
+
+    function showNoResults() {
+        if (searchResults) {
+            searchResults.innerHTML = '<div class="no-results">No matches</div>';
+        }
+    }
+
+    function displaySearchResults(results) {
+        if (!searchResults) return;
+
+        if (results.length === 0) {
+            searchResults.innerHTML = '<div class="no-results">No products found</div>';
+            return;
+        }
+
+        const resultsHtml = results.map(product => `
+            <div class="search-result-item" onclick="window.location.href='/product/${product.id}'">
+                <img src="${product.imageUrl}" alt="${product.name}" class="search-result-image">
+                <div class="search-result-info">
+                    <div class="search-result-name">${product.name}</div>
+                    <div class="search-result-price">₱ ${product.price}</div>
+                    <div class="search-result-category">${product.category}</div>
+                </div>
+            </div>
+        `).join('');
+
+        searchResults.innerHTML = resultsHtml;
+    }
+});
