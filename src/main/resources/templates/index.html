@@ -91,6 +91,9 @@
                  <span class="navigate">
                      <a href="/home" class="navigate-nodes">HOME</a>
                      <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a th:href="@{/categories/{name}(name=${category})}" class="navigate-nodes" th:text="${category.toUpperCase()}"></a>
+                     <img th:src="@{/images/chevron-right.svg}" alt="User">
+                     <a class="navigate-nodes" th:text="${name}"></a>
                  </span>
                  <div th:replace="~{fragments/product :: product}"></div>
              </div>

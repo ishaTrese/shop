@@ -2,8 +2,8 @@
     <div class="controls">
         <label for="sort">SORT BY : </label>
         <select id="sort" name="sort">
-            <option value="low">PRICE : LOW - HIGH</option>
-            <option value="high">PRICE : HIGH - LOW</option>
+            <option value="low" th:selected="${currentSort == 'low'}">PRICE : LOW - HIGH</option>
+            <option value="high" th:selected="${currentSort == 'high'}">PRICE : HIGH - LOW</option>
         </select>
         <img th:src="@{/images/chevron-down.svg}" alt="">
     </div>
@@ -13,9 +13,15 @@
          th:if="${#lists.size(products) > 0}">
         <a th:each="product, iterStat : ${products}" 
            th:if="${iterStat.index >= rowIndex * 6 && iterStat.index < (rowIndex + 1) * 6}"
-           th:href="@{/product/{index}-{type}(index=${iterStat.index}, type=${type})}">
+           th:href="@{/product/{id}(id=${product.id})}">
             <div class="items">
-                <img th:src="${product.imageUrl}">
+                <div class="image-container">
+                    <img th:src="${product.imageUrl}">
+                    <div class="product-overlay">
+                        <div class="product-name" th:text="${product.name}"></div>
+                        <div class="product-price" th:text="'₱ ' + ${product.price}"></div>
+                    </div>
+                </div>
                 <button class="add-to-cart" th:data-product-id="${product.id}" th:data-index="${iterStat.index}">Add to cart</button>
             </div>
         </a>

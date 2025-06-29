@@ -499,3 +499,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Sort functionality for catalog
+document.addEventListener('DOMContentLoaded', function() {
+    const sortSelect = document.getElementById('sort');
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const sortValue = this.value;
+            const currentUrl = window.location.pathname;
+            
+            // Add sort parameter to URL
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', sortValue);
+            
+            // Navigate to sorted URL
+            window.location.href = url.toString();
+        });
+        
+        // Set the current sort value from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentSort = urlParams.get('sort');
+        if (currentSort) {
+            sortSelect.value = currentSort;
+        }
+    }
+});

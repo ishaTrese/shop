@@ -7,6 +7,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -36,7 +37,8 @@ public class RootController {
     }
 
     @GetMapping("/categories/{name}")
-    public String catalog(@PathVariable String name, Model model) {
+    public String catalog(@PathVariable String name, Model model, 
+                         @RequestParam(value = "sort", required = false) String sort) {
         try {
             if (name.equalsIgnoreCase("rings")     ||
                 name.equalsIgnoreCase("earrings")  ||
@@ -68,6 +70,33 @@ public class RootController {
                 List<ProductData> products = inventoryService.getProductsByCategory(StringUtils.capitalize(name));
                 System.out.println("Found " + products.size() + " products for category: " + name);
                 
+                // Sort products if sort parameter is provided
+                if (sort != null && !sort.isEmpty()) {
+                    if ("low".equals(sort)) {
+                        // Sort by price: low to high
+                        products.sort((p1, p2) -> {
+                            try {
+                                float price1 = Float.parseFloat(p1.getPrice());
+                                float price2 = Float.parseFloat(p2.getPrice());
+                                return Float.compare(price1, price2);
+                            } catch (NumberFormatException e) {
+                                return 0; // Keep original order if parsing fails
+                            }
+                        });
+                    } else if ("high".equals(sort)) {
+                        // Sort by price: high to low
+                        products.sort((p1, p2) -> {
+                            try {
+                                float price1 = Float.parseFloat(p1.getPrice());
+                                float price2 = Float.parseFloat(p2.getPrice());
+                                return Float.compare(price2, price1);
+                            } catch (NumberFormatException e) {
+                                return 0; // Keep original order if parsing fails
+                            }
+                        });
+                    }
+                }
+                
                 model.addAttribute("type", type);
                 model.addAttribute("title", StringUtils.capitalize(name));
                 model.addAttribute("contentType", "catalog");
@@ -75,6 +104,7 @@ public class RootController {
                 model.addAttribute("nodeName", name.toUpperCase());
                 model.addAttribute("category", name.toLowerCase());
                 model.addAttribute("products", products);
+                model.addAttribute("currentSort", sort != null ? sort : "low");
                 return "index";
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -207,45 +237,23 @@ public class RootController {
         return "index";
     }
 
-    @GetMapping("/product/{index}")
-    public String productController(@PathVariable String index, Model model) {
+    @GetMapping("/product/{id}")
+    public String productController(@PathVariable Long id, Model model) {
         model.addAttribute("contentType", "product");
-        String[] parts = index.split("-");
-        String type = parts[1];
-        int idx = Integer.parseInt(parts[0]);
         
-        // Get product from database using the index and type
+        // Get product from database using the product ID
         InventoryService inventoryService = new InventoryService();
-        List<ProductData> products = new ArrayList<>();
+        ProductData product = inventoryService.getProductById(id);
         
-        String category;
-        switch (type) {
-            case "A":
-                category = "Bracelets";
-                break;
-            case "B":
-                category = "Earrings";
-                break;
-            case "C":
-                category = "Necklaces";
-                break;
-            case "D":
-                category = "Rings";
-                break;
-            default:
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        
-        products = inventoryService.getProductsByCategory(category);
-        
-        if (idx >= 0 && idx < products.size()) {
-            ProductData product = products.get(idx);
+        if (product != null) {
+            String category = product.getCategory();
+            String categoryLower = category.toLowerCase();
+            
             model.addAttribute("title", product.getName());
             model.addAttribute("name", product.getName());
             model.addAttribute("description", product.getDescription());
             model.addAttribute("price", product.getPrice());
-            model.addAttribute("category", category.toLowerCase());
-            model.addAttribute("index", idx);
+            model.addAttribute("category", categoryLower);
             model.addAttribute("productId", product.getId());
             model.addAttribute("imageUrl", product.getImageUrl());
         } else {
