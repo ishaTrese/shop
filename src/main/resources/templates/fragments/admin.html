@@ -257,8 +257,8 @@
                         <td>
                         <span class="inventory-status-badge"
                               th:with="stock=${product.stock}"
-                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
-                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                              th:classappend="${stock < 25 ? 'status-low' : (stock > 60 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 25 ? 'Low' : (stock > 60 ? 'High' : 'Normal')}">
                             Normal
                         </span>
                         </td>
@@ -301,8 +301,8 @@
                         <td>
                         <span class="inventory-status-badge"
                               th:with="stock=${product.stock}"
-                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
-                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                              th:classappend="${stock < 25 ? 'status-low' : (stock > 60 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 25 ? 'Low' : (stock > 60 ? 'High' : 'Normal')}">
                             Normal
                         </span>
                         </td>
@@ -345,8 +345,8 @@
                         <td>
                         <span class="inventory-status-badge"
                               th:with="stock=${product.stock}"
-                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
-                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                              th:classappend="${stock < 25 ? 'status-low' : (stock > 60 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 25 ? 'Low' : (stock > 60 ? 'High' : 'Normal')}">
                             Normal
                         </span>
                         </td>
@@ -389,8 +389,8 @@
                         <td>
                         <span class="inventory-status-badge"
                               th:with="stock=${product.stock}"
-                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
-                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                              th:classappend="${stock < 25 ? 'status-low' : (stock > 60 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 25 ? 'Low' : (stock > 60 ? 'High' : 'Normal')}">
                             Normal
                         </span>
                         </td>

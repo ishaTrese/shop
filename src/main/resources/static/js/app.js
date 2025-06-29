@@ -155,7 +155,6 @@ if (productAddToCart) {
         button.addEventListener('click', async function(event) {
             event.preventDefault();
             
-            // Get product ID from the page (we'll need to add this to the product template)
             const productIdElement = document.querySelector('[data-product-id]');
             if (!productIdElement) {
                 alert('Product information not found. Please refresh the page.');
@@ -262,7 +261,7 @@ if (removeFromCartButtons) {
                     const result = await response.json();
                     if (result.type === 'SUCCESS') {
                         alert(result.message || 'Item removed.');
-                        window.location.reload();  // Refresh cart
+                        window.location.reload();
                     } else {
                         alert('Error: ' + (result.message || 'Failed to remove item.'));
                     }
@@ -301,7 +300,6 @@ if (placeOrderBtn) {
             return;
         }
 
-        // Only validate card information if card payment is selected
         if (paymentMethod === 'card') {
             // NOTE: this is only basic hardcoded validation
             // Constraints:
@@ -459,6 +457,7 @@ async function updateStock(productId) {
 
         if (response.ok) {
             alert(data.message);
+            localStorage.setItem('adminActiveTab', 'inventoryManagement');
             window.location.reload();
         } else {
             alert(data.message || "Failed to update stock. Unknown error.");
@@ -469,13 +468,36 @@ async function updateStock(productId) {
     }
 }
 
+// Function to restore active tab on page load
+function restoreActiveTab() {
+    const activeTab = localStorage.getItem('adminActiveTab');
+    if (activeTab) {
+        // Find the tab button and trigger the openPanel function
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            const onclick = button.getAttribute('onclick');
+            if (onclick && onclick.includes(activeTab)) {
+                // Create a mock event and call openPanel
+                const mockEvent = { currentTarget: button };
+                openPanel(mockEvent, activeTab);
+            }
+        });
+        // Clear the stored tab after restoring
+        localStorage.removeItem('adminActiveTab');
+    }
+}
+
 // Payment method selection functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Restore active tab if we're on admin panel
+    if (window.location.pathname.includes('admin-panel')) {
+        restoreActiveTab();
+    }
+    
     const paymentMethods = document.querySelectorAll('input[name="payment-method"]');
     const cardSection = document.getElementById('card-payment-section');
     const cardExpiry = document.getElementById('card-expiry');
 
-    // Toggle card payment section visibility
     paymentMethods.forEach(method => {
         method.addEventListener('change', function() {
             if (this.value === 'card') {
@@ -486,10 +508,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Auto-format card expiry with "/"
     if (cardExpiry) {
         cardExpiry.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            let value = e.target.value.replace(/\D/g, '');
             
             if (value.length >= 2) {
                 value = value.substring(0, 2) + '/' + value.substring(2, 4);
@@ -509,15 +530,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const sortValue = this.value;
             const currentUrl = window.location.pathname;
             
-            // Add sort parameter to URL
             const url = new URL(window.location.href);
             url.searchParams.set('sort', sortValue);
             
-            // Navigate to sorted URL
             window.location.href = url.toString();
         });
         
-        // Set the current sort value from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const currentSort = urlParams.get('sort');
         if (currentSort) {
@@ -526,7 +544,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Search functionality
 document.addEventListener('DOMContentLoaded', function() {
     const searchButton = document.getElementById('searchButton');
     const searchModal = document.getElementById('searchModal');
@@ -537,27 +554,22 @@ document.addEventListener('DOMContentLoaded', function() {
     let allProducts = [];
     let searchTimeout;
 
-    // Load all products when page loads
     loadAllProducts();
 
     if (searchButton) {
-        // Show modal when search button is clicked
         searchButton.addEventListener('click', function() {
             showSearchModal();
         });
     }
 
     if (searchInput) {
-        // Handle input changes
         searchInput.addEventListener('input', function() {
             const query = this.value.trim();
             
-            // Clear previous timeout
             if (searchTimeout) {
                 clearTimeout(searchTimeout);
             }
 
-            // Debounce search
             searchTimeout = setTimeout(() => {
                 if (query.length > 0) {
                     performSearch(query);
@@ -567,7 +579,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         });
 
-        // Focus input when modal opens
         searchInput.addEventListener('focus', function() {
             if (this.value.trim() === '') {
                 showAllProducts();
@@ -576,20 +587,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (closeSearch) {
-        // Close modal when close button is clicked
         closeSearch.addEventListener('click', function() {
             hideSearchModal();
         });
     }
 
-    // Hide modal when clicking outside
     document.addEventListener('click', function(event) {
         if (searchBackgroundOverlay && event.target === searchBackgroundOverlay) {
             hideSearchModal();
         }
     });
 
-    // Hide modal when pressing Escape key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             hideSearchModal();
@@ -638,7 +646,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showAllProducts() {
-        displaySearchResults(allProducts.slice(0, 10)); // Show first 10 products
+        displaySearchResults(allProducts.slice(0, 10));
     }
 
     function showNoResults() {

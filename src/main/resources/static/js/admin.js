@@ -1,27 +1,21 @@
-// Admin Panel Management
 function openPanel(evt, panelName) {
     var i, panelContent, tabButtons;
     
-    // Hide all panel content
     panelContent = document.getElementsByClassName("panel-content");
     for (i = 0; i < panelContent.length; i++) {
         panelContent[i].style.display = "none";
     }
     
-    // Remove active class from all tab buttons
     tabButtons = document.getElementsByClassName("tab-button");
     for (i = 0; i < tabButtons.length; i++) {
         tabButtons[i].className = tabButtons[i].className.replace(" active", "");
     }
     
-    // Show the selected panel and add active class to the button
     document.getElementById(panelName).style.display = "block";
     evt.currentTarget.className += " active";
 }
 
-// Product Management Functions
 document.addEventListener('DOMContentLoaded', function() {
-    // Add Product Form Handler
     const addProductForm = document.getElementById('addProductForm');
     if (addProductForm) {
         addProductForm.addEventListener('submit', function(e) {
@@ -30,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Load products on page load
     loadProducts();
 });
 
@@ -57,7 +50,9 @@ function createProduct() {
         if (data.type === 'SUCCESS') {
             alert('Product created successfully!');
             document.getElementById('addProductForm').reset();
-            loadProducts(); // Refresh the product list
+            loadProducts();
+            localStorage.setItem('adminActiveTab', 'productManagement');
+            window.location.reload();
         } else {
             alert('Error: ' + data.message);
         }
@@ -98,12 +93,9 @@ function loadProducts() {
 }
 
 function editProduct(productId) {
-    // Fetch product details and populate a modal or form
     fetch(`/api/products/${productId}`)
     .then(response => response.json())
     .then(product => {
-        // For now, we'll use a simple prompt approach
-        // In a real application, you'd want a proper modal
         const newName = prompt('Product Name:', product.name);
         const newDescription = prompt('Description:', product.description);
         const newCategory = prompt('Category (Bracelets/Earrings/Necklaces/Rings):', product.category);
@@ -132,6 +124,8 @@ function editProduct(productId) {
                 if (data.type === 'SUCCESS') {
                     alert('Product updated successfully!');
                     loadProducts();
+                    localStorage.setItem('adminActiveTab', 'productManagement');
+                    window.location.reload();
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -158,6 +152,8 @@ function deleteProduct(productId) {
             if (data.type === 'SUCCESS') {
                 alert('Product deleted successfully!');
                 loadProducts();
+                localStorage.setItem('adminActiveTab', 'productManagement');
+                window.location.reload();
             } else {
                 alert('Error: ' + data.message);
             }
@@ -169,7 +165,6 @@ function deleteProduct(productId) {
     }
 }
 
-// Inventory Management Functions
 function updateStock(productId) {
     const stockInput = document.getElementById(`stock-input-${productId}`);
     const newStock = parseInt(stockInput.value);
@@ -179,7 +174,6 @@ function updateStock(productId) {
         return;
     }
     
-    // First, get the product details to find category and name
     fetch(`/api/products/${productId}`)
     .then(response => response.json())
     .then(product => {
@@ -200,7 +194,9 @@ function updateStock(productId) {
         .then(data => {
             if (data.type === 'SUCCESS') {
                 alert('Stock updated successfully!');
-                loadProducts(); // Refresh the product list
+                loadProducts();
+                localStorage.setItem('adminActiveTab', 'inventoryManagement');
+                window.location.reload();
             } else {
                 alert('Error: ' + data.message);
             }
