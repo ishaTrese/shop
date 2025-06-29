@@ -277,7 +277,7 @@ public class RootController {
         List<Map<String, Object>> userOrders = new ArrayList<>();
 
         try {
-            String getOrdersSql = "SELECT id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number FROM orders WHERE user_id = ? ORDER BY order_date DESC";
+            String getOrdersSql = "SELECT id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number, status FROM orders WHERE user_id = ? ORDER BY order_date DESC";
             PreparedStatement getOrdersStmt = AppConfig.connection.prepareStatement(getOrdersSql);
             getOrdersStmt.setInt(1, userId);
             ResultSet ordersRs = getOrdersStmt.executeQuery();
@@ -290,6 +290,7 @@ public class RootController {
                 String shippingAddress = ordersRs.getString("shipping_address");
                 String shippingEmail = ordersRs.getString("shipping_email");
                 String shippingMobileNumber = ordersRs.getString("shipping_mobile_number");
+                String status = ordersRs.getString("status");
 
                 Map<String, Object> order = new HashMap<>();
                 order.put("orderId", orderId);
@@ -299,7 +300,7 @@ public class RootController {
                 order.put("shippingAddress", shippingAddress);
                 order.put("shippingEmail", shippingEmail);
                 order.put("shippingMobileNumber", shippingMobileNumber);
-                order.put("status", "Processing");
+                order.put("status", status);
 
                 List<Map<String, Object>> orderItems = new ArrayList<>();
                 String getOrderItemsSql = "SELECT product_name, category, price, quantity FROM order_items WHERE order_id = ?";
@@ -348,10 +349,11 @@ public class RootController {
         int totalUsers = 0;
         BigDecimal averageOrderValue = BigDecimal.ZERO;
         String topCategory = "N/A";
+        int activeOrderCount = 0;
         
         try {
-            // Get all orders
-            String getOrdersSql = "SELECT id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number FROM orders ORDER BY order_date DESC";
+            // Get all orders (including cancelled for display purposes)
+            String getOrdersSql = "SELECT id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number, status FROM orders ORDER BY order_date DESC";
             PreparedStatement getOrdersStmt = AppConfig.connection.prepareStatement(getOrdersSql);
             ResultSet ordersRs = getOrdersStmt.executeQuery();
 
@@ -363,6 +365,7 @@ public class RootController {
                 String shippingAddress = ordersRs.getString("shipping_address");
                 String shippingEmail = ordersRs.getString("shipping_email");
                 String shippingMobileNumber = ordersRs.getString("shipping_mobile_number");
+                String status = ordersRs.getString("status");
 
                 Map<String, Object> order = new HashMap<>();
                 order.put("id", orderId);
@@ -372,14 +375,17 @@ public class RootController {
                 order.put("shippingAddress", shippingAddress);
                 order.put("shippingEmail", shippingEmail);
                 order.put("shippingMobileNumber", shippingMobileNumber);
-                order.put("status", "Processing");
+                order.put("status", status);
 
-                // Add to recent orders (last 5)
-                if (recentOrders.size() < 5) {
+                // Add to recent orders (last 5) - exclude cancelled orders
+                if (recentOrders.size() < 5 && !"Cancelled".equals(status)) {
                     recentOrders.add(order);
                 }
 
-                totalRevenue = totalRevenue.add(totalAmount);
+                // Only include non-cancelled orders in revenue calculation
+                if (!"Cancelled".equals(status)) {
+                    totalRevenue = totalRevenue.add(totalAmount);
+                }
 
                 List<Map<String, Object>> orderItems = new ArrayList<>();
                 String getOrderItemsSql = "SELECT product_name, category, price, quantity FROM order_items WHERE order_id = ?";
@@ -405,13 +411,19 @@ public class RootController {
             ordersRs.close();
             getOrdersStmt.close();
 
-            // Calculate average order value
-            if (!orders.isEmpty()) {
-                averageOrderValue = totalRevenue.divide(BigDecimal.valueOf(orders.size()), 2, RoundingMode.HALF_UP);
+            // Calculate average order value (excluding cancelled orders)
+            for (Map<String, Object> order : orders) {
+                if (!"Cancelled".equals(order.get("status"))) {
+                    activeOrderCount++;
+                }
+            }
+            
+            if (activeOrderCount > 0) {
+                averageOrderValue = totalRevenue.divide(BigDecimal.valueOf(activeOrderCount), 2, RoundingMode.HALF_UP);
             }
 
-            // Get total users
-            String countUsersSql = "SELECT COUNT(DISTINCT user_id) as user_count FROM orders";
+            // Get total users (excluding users who only have cancelled orders)
+            String countUsersSql = "SELECT COUNT(DISTINCT user_id) as user_count FROM orders WHERE status != 'Cancelled'";
             PreparedStatement countUsersStmt = AppConfig.connection.prepareStatement(countUsersSql);
             ResultSet usersRs = countUsersStmt.executeQuery();
             if (usersRs.next()) {
@@ -420,8 +432,16 @@ public class RootController {
             usersRs.close();
             countUsersStmt.close();
 
-            // Get top category
-            String topCategorySql = "SELECT category, SUM(price * quantity) as total_sales FROM order_items GROUP BY category ORDER BY total_sales DESC LIMIT 1";
+            // Get top category (excluding cancelled orders)
+            String topCategorySql = """
+                SELECT oi.category, SUM(oi.price * oi.quantity) as total_sales 
+                FROM order_items oi 
+                JOIN orders o ON oi.order_id = o.id 
+                WHERE o.status != 'Cancelled' 
+                GROUP BY oi.category 
+                ORDER BY total_sales DESC 
+                LIMIT 1
+                """;
             PreparedStatement topCategoryStmt = AppConfig.connection.prepareStatement(topCategorySql);
             ResultSet categoryRs = topCategoryStmt.executeQuery();
             if (categoryRs.next()) {
@@ -446,6 +466,7 @@ public class RootController {
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("averageOrderValue", String.format("%.2f", averageOrderValue));
         model.addAttribute("topCategory", topCategory);
+        model.addAttribute("activeOrderCount", activeOrderCount);
         
         return "index";
     }

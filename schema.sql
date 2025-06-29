@@ -65,12 +65,14 @@ CREATE TABLE orders (
     shipping_address VARCHAR(255) NOT NULL,
     shipping_email VARCHAR(255) NOT NULL,
     shipping_mobile_number VARCHAR(20) NOT NULL,
+    status VARCHAR(50) DEFAULT 'Processing' NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Order items table - uses product_id for better data integrity
+CREATE INDEX idx_orders_status ON orders(status);
+
 CREATE TABLE order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,

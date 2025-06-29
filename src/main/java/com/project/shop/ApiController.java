@@ -366,7 +366,7 @@ public class ApiController {
             float orderTotal = subtotal + tax;
 
 
-            String insertOrderSql = "INSERT INTO orders (user_id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String insertOrderSql = "INSERT INTO orders (user_id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement insertOrderStmt = AppConfig.connection.prepareStatement(insertOrderSql, Statement.RETURN_GENERATED_KEYS);
 
             insertOrderStmt.setInt(1, userId);
@@ -376,6 +376,7 @@ public class ApiController {
             insertOrderStmt.setString(5, orderRequest.shippingDetails.address);
             insertOrderStmt.setString(6, orderRequest.shippingDetails.email);
             insertOrderStmt.setString(7, orderRequest.shippingDetails.mobileNumber);
+            insertOrderStmt.setString(8, "Processing");
 
             int rowsInserted = insertOrderStmt.executeUpdate();
             if (rowsInserted == 0) {
@@ -438,6 +439,128 @@ public class ApiController {
             e.printStackTrace();
             Response errorResponse = Response.message(
                     "Database error during order placement: " + e.getMessage(),
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/cancel-order")
+    public ResponseEntity<Response> cancelOrder(@RequestBody CancelOrder cancelRequest) {
+        int userId = AppConfig.getCurrentUser();
+        if (userId == 0) {
+            Response errorResponse = Response.message(
+                    "User not logged in. Please log in to cancel an order.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (cancelRequest.orderId <= 0) {
+            Response errorResponse = Response.message(
+                    "Invalid order ID provided.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            AppConfig.connection.setAutoCommit(false);
+
+            // First, check if the order exists and belongs to the current user
+            String checkOrderSql = "SELECT id, status, total_amount FROM orders WHERE id = ? AND user_id = ?";
+            PreparedStatement checkOrderStmt = AppConfig.connection.prepareStatement(checkOrderSql);
+            checkOrderStmt.setInt(1, cancelRequest.orderId);
+            checkOrderStmt.setInt(2, userId);
+            ResultSet orderRs = checkOrderStmt.executeQuery();
+
+            if (!orderRs.next()) {
+                AppConfig.connection.rollback();
+                Response errorResponse = Response.message(
+                        "Order not found or you don't have permission to cancel this order.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            }
+
+            String currentStatus = orderRs.getString("status");
+            
+            // Check if order can be cancelled (only Processing orders can be cancelled)
+            if (!"Processing".equals(currentStatus)) {
+                AppConfig.connection.rollback();
+                Response errorResponse = Response.message(
+                        "Order cannot be cancelled. Current status: " + currentStatus + ". Only Processing orders can be cancelled.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            }
+
+            // Get order items to restore stock
+            List<Map<String, Object>> orderItems = new ArrayList<>();
+            String getOrderItemsSql = "SELECT product_id, quantity FROM order_items WHERE order_id = ?";
+            PreparedStatement getOrderItemsStmt = AppConfig.connection.prepareStatement(getOrderItemsSql);
+            getOrderItemsStmt.setInt(1, cancelRequest.orderId);
+            ResultSet itemsRs = getOrderItemsStmt.executeQuery();
+
+            while (itemsRs.next()) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("productId", itemsRs.getLong("product_id"));
+                item.put("quantity", itemsRs.getInt("quantity"));
+                orderItems.add(item);
+            }
+
+            // Update order status to Cancelled
+            String updateOrderSql = "UPDATE orders SET status = ? WHERE id = ? AND user_id = ?";
+            PreparedStatement updateOrderStmt = AppConfig.connection.prepareStatement(updateOrderSql);
+            updateOrderStmt.setString(1, "Cancelled");
+            updateOrderStmt.setInt(2, cancelRequest.orderId);
+            updateOrderStmt.setInt(3, userId);
+            
+            int rowsUpdated = updateOrderStmt.executeUpdate();
+            
+            if (rowsUpdated == 0) {
+                AppConfig.connection.rollback();
+                Response errorResponse = Response.message(
+                        "Failed to cancel order.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            // Restore stock for all items in the order
+            InventoryService inventoryService = new InventoryService();
+            for (Map<String, Object> item : orderItems) {
+                Long productId = (Long) item.get("productId");
+                Integer quantity = (Integer) item.get("quantity");
+                
+                if (productId != null && quantity != null) {
+                    ProductData productData = inventoryService.getProductById(productId);
+                    if (productData != null) {
+                        int newStock = productData.getStock() + quantity;
+                        inventoryService.updateStock(productId, newStock);
+                    }
+                }
+            }
+
+            AppConfig.connection.commit();
+            AppConfig.connection.setAutoCommit(true);
+
+            Response successResponse = Response.message(
+                    "Order #" + cancelRequest.orderId + " cancelled successfully. Stock has been restored.",
+                    RESPONSE_TYPE.SUCCESS
+            );
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+
+        } catch (SQLException e) {
+            try {
+                AppConfig.connection.rollback();
+                AppConfig.connection.setAutoCommit(true);
+            } catch (SQLException rollbackEx) {
+                System.err.println("Error during rollback: " + rollbackEx.getMessage());
+            }
+            e.printStackTrace();
+            Response errorResponse = Response.message(
+                    "Database error during order cancellation: " + e.getMessage(),
                     RESPONSE_TYPE.ERROR
             );
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);

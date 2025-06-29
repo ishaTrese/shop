@@ -421,8 +421,8 @@
             <div class="stat-card">
                 <div class="stat-icon">📊</div>
                 <div class="stat-content">
-                    <h3 class="stat-number" th:text="${#lists.size(orders)}">0</h3>
-                    <p class="stat-label">Total Orders</p>
+                    <h3 class="stat-number" th:text="${activeOrderCount}">0</h3>
+                    <p class="stat-label">Active Orders</p>
                 </div>
             </div>
             
@@ -430,7 +430,7 @@
                 <div class="stat-icon">👥</div>
                 <div class="stat-content">
                     <h3 class="stat-number" th:text="${totalUsers}">0</h3>
-                    <p class="stat-label">Total Users</p>
+                    <p class="stat-label">Active Customers</p>
                 </div>
             </div>
             
@@ -468,7 +468,7 @@
         </div>
 
         <div class="recent-activity-section">
-            <h3>Recent Activity</h3>
+            <h3>Recent Activity (Active Orders Only)</h3>
             <div class="activity-list">
                 <div class="activity-item" th:each="order : ${recentOrders}">
                     <div class="activity-icon">🛒</div>
@@ -484,6 +484,43 @@
                 
                 <div th:if="${#lists.isEmpty(recentOrders)}" class="no-activity">
                     <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-status-section">
+            <h3>Order Status Overview</h3>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-icon processing">📋</div>
+                    <div class="status-content">
+                        <h4 class="status-number" th:text="${#lists.size(orders.?[status == 'Processing'])}">0</h4>
+                        <p class="status-label">Processing</p>
+                    </div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="status-icon shipped">🚚</div>
+                    <div class="status-content">
+                        <h4 class="status-number" th:text="${#lists.size(orders.?[status == 'Shipped'])}">0</h4>
+                        <p class="status-label">Shipped</p>
+                    </div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="status-icon delivered">✅</div>
+                    <div class="status-content">
+                        <h4 class="status-number" th:text="${#lists.size(orders.?[status == 'Delivered'])}">0</h4>
+                        <p class="status-label">Delivered</p>
+                    </div>
+                </div>
+                
+                <div class="status-card">
+                    <div class="status-icon cancelled">❌</div>
+                    <div class="status-content">
+                        <h4 class="status-number" th:text="${#lists.size(orders.?[status == 'Cancelled'])}">0</h4>
+                        <p class="status-label">Cancelled</p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -677,3 +677,50 @@ document.addEventListener('DOMContentLoaded', function() {
         searchResults.innerHTML = resultsHtml;
     }
 });
+
+// Cancel Order Function
+async function cancelOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+        return;
+    }
+
+    const cancelData = {
+        orderId: orderId,
+        reason: "Customer requested cancellation"
+    };
+
+    try {
+        const response = await fetch('/api/cancel-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cancelData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert('Order cancelled successfully!');
+            // Refresh the page to show updated order status
+            window.location.reload();
+        } else {
+            const errorData = await response.json();
+            alert('Failed to cancel order: ' + (errorData.message || 'Unknown error.'));
+        }
+    } catch (error) {
+        console.error('Network error during order cancellation:', error);
+        alert('A network error occurred. Please try again.');
+    }
+}
+
+// Add event listeners for cancel order buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const cancelButtons = document.querySelectorAll('.cancel-order-btn');
+    cancelButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const orderId = parseInt(this.dataset.orderId);
+            cancelOrder(orderId);
+        });
+    });
+});

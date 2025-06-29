@@ -127,6 +127,17 @@
     display: inline-block;
 }
 
+.status-cancelled {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #721c24;
+    border-radius: 0;
+    display: inline-block;
+}
+
 .shipping-info {
     display: flex;
     flex-direction: column;
@@ -186,6 +197,32 @@
     color: black;
     flex: 0.5;
     text-align: center;
+}
+
+.order-actions {
+    text-align: center;
+}
+
+.cancel-order-btn {
+    background-color: #dc3545;
+    color: white;
+    border: 1px solid #dc3545;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 0;
+}
+
+.cancel-order-btn:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.no-action {
+    color: #666;
+    font-style: italic;
 }
 
 @media (max-width: 768px) {
