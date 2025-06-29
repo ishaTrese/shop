@@ -291,9 +291,58 @@ if (placeOrderBtn) {
         const cardNumber = document.getElementById('card-number').value.trim();
         const cardExpiry = document.getElementById('card-expiry').value.trim();
         const cardCvv = document.getElementById('card-cvv').value.trim();
+        
+        // Get selected payment method
+        const selectedPaymentMethod = document.querySelector('input[name="payment-method"]:checked');
+        const paymentMethod = selectedPaymentMethod ? selectedPaymentMethod.value : 'cod';
+
         if (!fullName || !address || !email || !mobileNumber) {
             alert('Please fill in all shipping details.');
             return;
+        }
+
+        // Only validate card information if card payment is selected
+        if (paymentMethod === 'card') {
+            // NOTE: this is only basic hardcoded validation
+            // Constraints:
+            //    - card must be prefixed by either 4 or 5
+            //    - month should be atleast minimum 06/25
+            //    - cvv should be 3 digit
+            const cardNumberRegex = /^(4\d{15}|5\d{15})$/;
+            if (!cardNumberRegex.test(cardNumber)) {
+                alert('Card Number must be 16 digits long and start with 4 or 5.');
+                return;
+            }
+
+            const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+            if (!expiryRegex.test(cardExpiry)) {
+                alert('Expiry Date must be in MM/YY format (e.g., 01/26).');
+                return;
+            }
+
+            const [expMonthStr, expYearStr] = cardExpiry.split('/');
+            const expMonth = parseInt(expMonthStr, 10);
+            const expYear = parseInt('20' + expYearStr, 10);
+
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth() + 1;
+            const currentYear = currentDate.getFullYear();
+
+            if (expMonth === 6 && expYear === 2025) {
+                alert('Cards expiring in 06/25 are not accepted.');
+                return;
+            }
+
+            if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+                alert('Expiry Date cannot be in the past.');
+                return;
+            }
+
+            const cvvRegex = /^\d{3}$/;
+            if (!cvvRegex.test(cardCvv)) {
+                alert('CVV must be a 3-digit number.');
+                return;
+            }
         }
 
         const orderData = {
@@ -302,49 +351,9 @@ if (placeOrderBtn) {
                 address: address,
                 email: email,
                 mobileNumber: mobileNumber
-            }
+            },
+            paymentMethod: paymentMethod
         };
-
-        // NOTE: this is only basic hardcoded validation
-        // Constraints:
-        //    - card must be prefixed by either 4 or 5
-        //    - month should be atleast minimum 06/25
-        //    - cvv should be 3 digit
-        const cardNumberRegex = /^(4\d{15}|5\d{15})$/;
-        if (!cardNumberRegex.test(cardNumber)) {
-            alert('Card Number must be 16 digits long and start with 4 or 5.');
-            return;
-        }
-
-        const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
-        if (!expiryRegex.test(cardExpiry)) {
-            alert('Expiry Date must be in MM/YY format (e.g., 01/26).');
-            return;
-        }
-
-        const [expMonthStr, expYearStr] = cardExpiry.split('/');
-        const expMonth = parseInt(expMonthStr, 10);
-        const expYear = parseInt('20' + expYearStr, 10);
-
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1;
-        const currentYear = currentDate.getFullYear();
-
-        if (expMonth === 6 && expYear === 2025) {
-            alert('Cards expiring in 06/25 are not accepted.');
-            return;
-        }
-
-        if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
-            alert('Expiry Date cannot be in the past.');
-            return;
-        }
-
-        const cvvRegex = /^\d{3}$/;
-        if (!cvvRegex.test(cardCvv)) {
-            alert('CVV must be a 3-digit number.');
-            return;
-        }
 
         try {
             const response = await fetch('/api/place-order', {

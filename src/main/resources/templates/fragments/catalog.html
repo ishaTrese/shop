@@ -8,19 +8,17 @@
         <img th:src="@{/images/chevron-down.svg}" alt="">
     </div>
 
-    <div th:with="totalProducts=${#lists.size(products)}, productsPerRow=6">
-        <div th:each="rowIndex : ${#numbers.sequence(0, (totalProducts - 1) / productsPerRow)}" 
-             class="item-row" 
-             th:if="${totalProducts > 0}">
-            <a th:each="product, iterStat : ${products}" 
-               th:if="${iterStat.index >= rowIndex * productsPerRow && iterStat.index < (rowIndex + 1) * productsPerRow}"
-               th:href="@{/product/{index}-{type}(index=${iterStat.index}, type=${type})}">
-                <div class="items">
-                    <img th:src="${product.imageUrl}">
-                    <button class="add-to-cart" th:data-product-id="${product.id}" th:data-index="${iterStat.index}">Add to cart</button>
-                </div>
-            </a>
-        </div>
+    <div th:each="rowIndex : ${#numbers.sequence(0, (#lists.size(products) - 1) / 6)}" 
+         class="product-row" 
+         th:if="${#lists.size(products) > 0}">
+        <a th:each="product, iterStat : ${products}" 
+           th:if="${iterStat.index >= rowIndex * 6 && iterStat.index < (rowIndex + 1) * 6}"
+           th:href="@{/product/{index}-{type}(index=${iterStat.index}, type=${type})}">
+            <div class="items">
+                <img th:src="${product.imageUrl}">
+                <button class="add-to-cart" th:data-product-id="${product.id}" th:data-index="${iterStat.index}">Add to cart</button>
+            </div>
+        </a>
     </div>
     
     <div th:if="${#lists.isEmpty(products)}" class="no-products">
