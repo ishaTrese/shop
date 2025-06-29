@@ -1,63 +1,495 @@
 <div class="admin-container" xmlns:th="http://www.thymeleaf.org" th:fragment="admin">
     <div class="panel-tabs">
-        <button class="tab-button active" onclick="openPanel(event, 'inventoryManagement')">Inventory Management</button>
-        <button class="tab-button" onclick="openPanel(event, 'viewAllOrders')">View All Orders</button>
+        <button class="tab-button active" onclick="openPanel(event, 'productManagement')">
+            <span>📦</span> Product Management
+        </button>
+        <button class="tab-button" onclick="openPanel(event, 'inventoryManagement')">
+            <span>📊</span> Inventory Management
+        </button>
+        <button class="tab-button" onclick="openPanel(event, 'customerInformation')">
+            <span>👥</span> Customer Information
+        </button>
+        <button class="tab-button" onclick="openPanel(event, 'viewAllOrders')">
+            <span>📋</span> View All Orders
+        </button>
     </div>
 
-    <div id="inventoryManagement" class="panel-content" style="display: none;">
-        <h2 class="panel-title">Inventory Management</h2>
-        <div class="table-container">
-            <table class="inventory-table">
-                <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Stock</th>
-                    <th>Status</th>
-                    <th>Change Stock</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="product : ${products}">
-                    <td class="inventory-product-name" th:text="${product.name}">Example Product A</td>
-                    <td class="inventory-category" th:text="${product.category}">Electronics</td>
-                    <td class="inventory-stock-qty" th:text="${product.stock}">50</td>
-                    <td>
-                    <span class="inventory-status-badge"
-                          th:with="stock=${product.stock}"
-                          th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
-                          th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
-                        Normal
-                    </span>
-                    </td>
-                    <td class="inventory-stock-input-cell">
-                        <input type="number"
-                               th:id="'stock-input-' + ${product.id}"
-                               th:value="${product.stock}"
-                               min="0"
-                               class="inventory-stock-input">
-                    </td>
-                    <td class="inventory-action-cell">
-                        <button th:onclick="'updateStock(' + ${product.id} + ')'"
-                                class="inventory-update-btn">
-                            Update
-                        </button>
-                    </td>
-                </tr>
+    <!-- Product panel -->
+    <div id="productManagement" class="panel-content">
+        <h2 class="panel-title">Product Management</h2>
+        
+        <div class="add-product-section">
+            <h3>Add New Product</h3>
+            
+            <div id="successMessage" class="success-message" style="display: none;">
+                Product added successfully!
+            </div>
+            <div id="errorMessage" class="error-message" style="display: none;">
+                Error adding product. Please try again.
+            </div>
+            
+            <form id="addProductForm" class="product-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" name="name" required 
+                               placeholder="Enter product name">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category</label>
+                        <select id="productCategory" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Bracelets">Bracelets</option>
+                            <option value="Earrings">Earrings</option>
+                            <option value="Necklaces">Necklaces</option>
+                            <option value="Rings">Rings</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productPrice">Price (₱)</label>
+                        <input type="number" id="productPrice" name="price" step="0.01" min="0" required 
+                               placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Stock</label>
+                        <input type="number" id="productStock" name="stock" min="0" required 
+                               placeholder="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription" name="description" rows="4" required 
+                              placeholder="Enter product description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productImageUrl">Image URL</label>
+                    <input type="text" id="productImageUrl" name="imageUrl" 
+                           placeholder="/images/category/image.png">
+                    <small style="color: #6c757d; font-size: 12px; margin-top: 5px;">
+                        Example: /images/rings/0.png or leave empty for default
+                    </small>
+                </div>
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <span>➕</span> Add Product
+                </button>
+            </form>
+        </div>
 
-                <tr th:if="${#lists.isEmpty(products)}">
-                    <td colspan="6" class="no-inventory-items">
-                        <h3 class="no-items-title">No products found</h3>
-                        <p class="no-items-text">No products are currently in the inventory.</p>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="product-list-section">
+            <h3>All Products by Category</h3>
+            
+            <!-- Bracelets Section -->
+            <div class="category-section">
+                <h4 class="category-title">📿 Bracelets</h4>
+                <div class="table-container">
+                    <table class="product-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${products}" th:if="${product.category == 'Bracelets'}">
+                            <td th:text="${product.id}">1</td>
+                            <td th:text="${product.name}">Example Product</td>
+                            <td th:text="${'₱' + product.price}">₱8,789.00</td>
+                            <td>
+                                <span class="stock-badge" 
+                                      th:classappend="${product.stock < 10 ? 'stock-low' : (product.stock > 50 ? 'stock-high' : 'stock-normal')}"
+                                      th:text="${product.stock}">50</span>
+                            </td>
+                            <td class="action-buttons">
+                                <button th:onclick="'editProduct(' + ${product.id} + ')'" class="btn-edit">
+                                    <span>✏️</span> Edit
+                                </button>
+                                <button th:onclick="'deleteProduct(' + ${product.id} + ')'" class="btn-delete">
+                                    <span>🗑️</span> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Earrings Section -->
+            <div class="category-section">
+                <h4 class="category-title">💎 Earrings</h4>
+                <div class="table-container">
+                    <table class="product-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${products}" th:if="${product.category == 'Earrings'}">
+                            <td th:text="${product.id}">1</td>
+                            <td th:text="${product.name}">Example Product</td>
+                            <td th:text="${'₱' + product.price}">₱8,789.00</td>
+                            <td>
+                                <span class="stock-badge" 
+                                      th:classappend="${product.stock < 10 ? 'stock-low' : (product.stock > 50 ? 'stock-high' : 'stock-normal')}"
+                                      th:text="${product.stock}">50</span>
+                            </td>
+                            <td class="action-buttons">
+                                <button th:onclick="'editProduct(' + ${product.id} + ')'" class="btn-edit">
+                                    <span>✏️</span> Edit
+                                </button>
+                                <button th:onclick="'deleteProduct(' + ${product.id} + ')'" class="btn-delete">
+                                    <span>🗑️</span> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Necklaces Section -->
+            <div class="category-section">
+                <h4 class="category-title">📿 Necklaces</h4>
+                <div class="table-container">
+                    <table class="product-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${products}" th:if="${product.category == 'Necklaces'}">
+                            <td th:text="${product.id}">1</td>
+                            <td th:text="${product.name}">Example Product</td>
+                            <td th:text="${'₱' + product.price}">₱8,789.00</td>
+                            <td>
+                                <span class="stock-badge" 
+                                      th:classappend="${product.stock < 10 ? 'stock-low' : (product.stock > 50 ? 'stock-high' : 'stock-normal')}"
+                                      th:text="${product.stock}">50</span>
+                            </td>
+                            <td class="action-buttons">
+                                <button th:onclick="'editProduct(' + ${product.id} + ')'" class="btn-edit">
+                                    <span>✏️</span> Edit
+                                </button>
+                                <button th:onclick="'deleteProduct(' + ${product.id} + ')'" class="btn-delete">
+                                    <span>🗑️</span> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Rings Section -->
+            <div class="category-section">
+                <h4 class="category-title">💍 Rings</h4>
+                <div class="table-container">
+                    <table class="product-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${products}" th:if="${product.category == 'Rings'}">
+                            <td th:text="${product.id}">1</td>
+                            <td th:text="${product.name}">Example Product</td>
+                            <td th:text="${'₱' + product.price}">₱8,789.00</td>
+                            <td>
+                                <span class="stock-badge" 
+                                      th:classappend="${product.stock < 10 ? 'stock-low' : (product.stock > 50 ? 'stock-high' : 'stock-normal')}"
+                                      th:text="${product.stock}">50</span>
+                            </td>
+                            <td class="action-buttons">
+                                <button th:onclick="'editProduct(' + ${product.id} + ')'" class="btn-edit">
+                                    <span>✏️</span> Edit
+                                </button>
+                                <button th:onclick="'deleteProduct(' + ${product.id} + ')'" class="btn-delete">
+                                    <span>🗑️</span> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="viewAllOrders" class="panel-content">
+    <div id="inventoryManagement" class="panel-content" style="display: none;">
+        <h2 class="panel-title">Inventory Management by Category</h2>
+        
+        <div class="category-section">
+            <h4 class="category-title">📿 Bracelets</h4>
+            <div class="table-container">
+                <table class="inventory-table">
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Change Stock</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}" th:if="${product.category == 'Bracelets'}">
+                        <td class="inventory-product-name" th:text="${product.name}">Example Product A</td>
+                        <td class="inventory-stock-qty" th:text="${product.stock}">50</td>
+                        <td>
+                        <span class="inventory-status-badge"
+                              th:with="stock=${product.stock}"
+                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                            Normal
+                        </span>
+                        </td>
+                        <td class="inventory-stock-input-cell">
+                            <input type="number"
+                                   th:id="'stock-input-' + ${product.id}"
+                                   th:value="${product.stock}"
+                                   min="0"
+                                   class="inventory-stock-input">
+                        </td>
+                        <td class="inventory-action-cell">
+                            <button th:onclick="'updateStock(' + ${product.id} + ')'"
+                                    class="inventory-update-btn">
+                                Update
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h4 class="category-title">💎 Earrings</h4>
+            <div class="table-container">
+                <table class="inventory-table">
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Change Stock</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}" th:if="${product.category == 'Earrings'}">
+                        <td class="inventory-product-name" th:text="${product.name}">Example Product A</td>
+                        <td class="inventory-stock-qty" th:text="${product.stock}">50</td>
+                        <td>
+                        <span class="inventory-status-badge"
+                              th:with="stock=${product.stock}"
+                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                            Normal
+                        </span>
+                        </td>
+                        <td class="inventory-stock-input-cell">
+                            <input type="number"
+                                   th:id="'stock-input-' + ${product.id}"
+                                   th:value="${product.stock}"
+                                   min="0"
+                                   class="inventory-stock-input">
+                        </td>
+                        <td class="inventory-action-cell">
+                            <button th:onclick="'updateStock(' + ${product.id} + ')'"
+                                    class="inventory-update-btn">
+                                Update
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h4 class="category-title">📿 Necklaces</h4>
+            <div class="table-container">
+                <table class="inventory-table">
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Change Stock</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}" th:if="${product.category == 'Necklaces'}">
+                        <td class="inventory-product-name" th:text="${product.name}">Example Product A</td>
+                        <td class="inventory-stock-qty" th:text="${product.stock}">50</td>
+                        <td>
+                        <span class="inventory-status-badge"
+                              th:with="stock=${product.stock}"
+                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                            Normal
+                        </span>
+                        </td>
+                        <td class="inventory-stock-input-cell">
+                            <input type="number"
+                                   th:id="'stock-input-' + ${product.id}"
+                                   th:value="${product.stock}"
+                                   min="0"
+                                   class="inventory-stock-input">
+                        </td>
+                        <td class="inventory-action-cell">
+                            <button th:onclick="'updateStock(' + ${product.id} + ')'"
+                                    class="inventory-update-btn">
+                                Update
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <h4 class="category-title">💍 Rings</h4>
+            <div class="table-container">
+                <table class="inventory-table">
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Change Stock</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}" th:if="${product.category == 'Rings'}">
+                        <td class="inventory-product-name" th:text="${product.name}">Example Product A</td>
+                        <td class="inventory-stock-qty" th:text="${product.stock}">50</td>
+                        <td>
+                        <span class="inventory-status-badge"
+                              th:with="stock=${product.stock}"
+                              th:classappend="${stock < 10 ? 'status-low' : (stock > 100 ? 'status-high' : 'status-normal')}"
+                              th:text="${stock < 10 ? 'Low' : (stock > 100 ? 'High' : 'Normal')}">
+                            Normal
+                        </span>
+                        </td>
+                        <td class="inventory-stock-input-cell">
+                            <input type="number"
+                                   th:id="'stock-input-' + ${product.id}"
+                                   th:value="${product.stock}"
+                                   min="0"
+                                   class="inventory-stock-input">
+                        </td>
+                        <td class="inventory-action-cell">
+                            <button th:onclick="'updateStock(' + ${product.id} + ')'"
+                                    class="inventory-update-btn">
+                                Update
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="customerInformation" class="panel-content" style="display: none;">
+        <h2 class="panel-title">Customer Information</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <h3 class="stat-number" th:text="${#lists.size(orders)}">0</h3>
+                    <p class="stat-label">Total Orders</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3 class="stat-number" th:text="${totalUsers}">0</h3>
+                    <p class="stat-label">Total Users</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <h3 class="stat-number" th:text="${'₱' + totalRevenue}">₱0.00</h3>
+                    <p class="stat-label">Total Revenue</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                    <h3 class="stat-number" th:text="${#lists.size(products)}">0</h3>
+                    <p class="stat-label">Total Products</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">🛒</div>
+                <div class="stat-content">
+                    <h3 class="stat-number" th:text="${'₱' + averageOrderValue}">₱0.00</h3>
+                    <p class="stat-label">Average Order Value</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-content">
+                    <h3 class="stat-number" th:text="${topCategory}">-</h3>
+                    <p class="stat-label">Top Category</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activity-section">
+            <h3>Recent Activity</h3>
+            <div class="activity-list">
+                <div class="activity-item" th:each="order : ${recentOrders}">
+                    <div class="activity-icon">🛒</div>
+                    <div class="activity-content">
+                        <p class="activity-text">
+                            <strong th:text="${order.shippingFullName}">Customer Name</strong> 
+                            placed an order for 
+                            <strong th:text="${'₱' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₱0.00</strong>
+                        </p>
+                        <p class="activity-time" th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy HH:mm')}">Jun 23, 2025 14:30</p>
+                    </div>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(recentOrders)}" class="no-activity">
+                    <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewAllOrders" class="panel-content" style="display: none;">
         <h2>View All Orders</h2>
         <table class="order-table">
             <thead>

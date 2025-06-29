@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -164,7 +168,7 @@ public class ApiController {
     }
 
     @PostMapping("/add-to-cart")
-    public ResponseEntity<Response> addToCart(@RequestBody Product addRequest) {
+    public ResponseEntity<Response> addToCart(@RequestBody CartItem addRequest) {
         int userId = AppConfig.getCurrentUser();
         if (userId == 0) {
             Response errorResponse = Response.message(
@@ -174,108 +178,72 @@ public class ApiController {
             return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
         }
 
-        String[][] targetArray;
-        String name;
-        String price;
-        int currentPhysicalStock; // Represents the actual stock left in AppConfig
-
-        // Get the correct AppConfig array and extract product details including current stock
-        switch (addRequest.category) {
-            case "bracelets":
-                targetArray = AppConfig.bracelets;
-                break;
-            case "earrings":
-                targetArray = AppConfig.earrings;
-                break;
-            case "necklaces":
-                targetArray = AppConfig.necklaces;
-                break;
-            case "rings":
-                targetArray = AppConfig.rings;
-                break;
-            default:
-                return new ResponseEntity<>(
-                        Response.message("Unknown category", RESPONSE_TYPE.ERROR),
-                        HttpStatus.BAD_REQUEST
-                );
-        }
-
-        if (addRequest.index < 0 || addRequest.index >= targetArray.length) {
+        // Get product from database using product ID
+        InventoryService inventoryService = new InventoryService();
+        ProductData productData = inventoryService.getProductById(addRequest.getProductId());
+        
+        if (productData == null) {
             return new ResponseEntity<>(
-                    Response.message("Product index out of bounds for category " + addRequest.category, RESPONSE_TYPE.ERROR),
-                    HttpStatus.BAD_REQUEST
-            );
-        }
-
-        name = targetArray[addRequest.index][0];
-        price = targetArray[addRequest.index][2];
-        try {
-            currentPhysicalStock = Integer.parseInt(targetArray[addRequest.index][3]);
-        } catch (NumberFormatException e) {
-            return new ResponseEntity<>(
-                    Response.message("Invalid stock data for product: " + name, RESPONSE_TYPE.ERROR),
-                    HttpStatus.INTERNAL_SERVER_ERROR
+                    Response.message("Product not found", RESPONSE_TYPE.ERROR),
+                    HttpStatus.NOT_FOUND
             );
         }
 
         // Validate requested quantity
-        if (addRequest.quantity <= 0) {
+        if (addRequest.getQuantity() <= 0) {
             return new ResponseEntity<>(
                     Response.message("Quantity to add must be at least 1.", RESPONSE_TYPE.ERROR),
                     HttpStatus.BAD_REQUEST
             );
         }
 
-        // --- Core Stock Check Logic ---
-        // We only allow adding if the physical stock is enough for the *new* quantity being requested.
-        if (currentPhysicalStock < addRequest.quantity) {
+        // Check if enough stock is available
+        if (productData.getStock() < addRequest.getQuantity()) {
             return new ResponseEntity<>(
-                    Response.message("Not enough stock for " + name + ". Available: " + currentPhysicalStock + ".", RESPONSE_TYPE.ERROR),
+                    Response.message("Not enough stock for " + productData.getName() + ". Available: " + productData.getStock() + ".", RESPONSE_TYPE.ERROR),
                     HttpStatus.BAD_REQUEST
             );
         }
 
         try {
-            String checkSql = "SELECT quantity FROM cart_items WHERE user_id = ? AND product_index = ? AND category = ?";
+            String checkSql = "SELECT quantity FROM cart_items WHERE user_id = ? AND product_id = ?";
             PreparedStatement checkStmt = AppConfig.connection.prepareStatement(checkSql);
             checkStmt.setInt(1, userId);
-            checkStmt.setInt(2, addRequest.index);
-            checkStmt.setString(3, addRequest.category);
+            checkStmt.setLong(2, addRequest.getProductId());
             ResultSet rs = checkStmt.executeQuery();
 
             if (rs.next()) {
                 // If item already in cart, update its quantity
                 int existingQuantityInCart = rs.getInt("quantity");
-                int newTotalQuantityInCart = existingQuantityInCart + addRequest.quantity;
+                int newTotalQuantityInCart = existingQuantityInCart + addRequest.getQuantity();
 
-                String updateSql = "UPDATE cart_items SET quantity = ? WHERE user_id = ? AND product_index = ? AND category = ?";
+                String updateSql = "UPDATE cart_items SET quantity = ? WHERE user_id = ? AND product_id = ?";
                 PreparedStatement updateStmt = AppConfig.connection.prepareStatement(updateSql);
                 updateStmt.setInt(1, newTotalQuantityInCart);
                 updateStmt.setInt(2, userId);
-                updateStmt.setInt(3, addRequest.index);
-                updateStmt.setString(4, addRequest.category);
+                updateStmt.setLong(3, addRequest.getProductId());
                 updateStmt.executeUpdate();
             } else {
                 // If item not in cart, insert it
                 String insertSql = "INSERT INTO cart_items " +
-                        "(user_id, product_index, product_name, category, price, quantity) " +
+                        "(user_id, product_id, product_name, category, price, quantity) " +
                         "VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement insertStmt = AppConfig.connection.prepareStatement(insertSql);
                 insertStmt.setInt(1, userId);
-                insertStmt.setInt(2, addRequest.index);
-                insertStmt.setString(3, name);
-                insertStmt.setString(4, addRequest.category);
-                insertStmt.setFloat(5, Float.parseFloat(price));
-                insertStmt.setInt(6, addRequest.quantity);
+                insertStmt.setLong(2, addRequest.getProductId());
+                insertStmt.setString(3, productData.getName());
+                insertStmt.setString(4, productData.getCategory());
+                insertStmt.setBigDecimal(5, new java.math.BigDecimal(productData.getPrice()));
+                insertStmt.setInt(6, addRequest.getQuantity());
                 insertStmt.executeUpdate();
             }
 
-            // Deduct stock from AppConfig after successful cart update/insert
-            // This is the only place stock is reduced.
-            targetArray[addRequest.index][3] = String.valueOf(currentPhysicalStock - addRequest.quantity);
+            // Update stock in database
+            int newStock = productData.getStock() - addRequest.getQuantity();
+            inventoryService.updateStock(addRequest.getProductId(), newStock);
 
             return new ResponseEntity<>(
-                    Response.message("Added " + addRequest.quantity + " of " + name + " to cart successfully! Available stock: " + (currentPhysicalStock - addRequest.quantity) + ".", RESPONSE_TYPE.SUCCESS),
+                    Response.message("Added " + addRequest.getQuantity() + " of " + productData.getName() + " to cart successfully! Available stock: " + newStock + ".", RESPONSE_TYPE.SUCCESS),
                     HttpStatus.OK
             );
 
@@ -300,11 +268,10 @@ public class ApiController {
         }
 
         try {
-            String sql = "DELETE FROM cart_items WHERE user_id = ? AND product_index = ? AND category = ?";
+            String sql = "DELETE FROM cart_items WHERE user_id = ? AND product_id = ?";
             PreparedStatement stmt = AppConfig.connection.prepareStatement(sql);
             stmt.setInt(1, userId);
-            stmt.setInt(2, request.index);
-            stmt.setString(3, request.category);
+            stmt.setLong(2, request.productId);
 
             int rowsDeleted = stmt.executeUpdate();
 
@@ -360,9 +327,9 @@ public class ApiController {
 
 
             List<Map<String, Object>> cartItems = new ArrayList<>();
-            float orderTotal = 0;
+            float subtotal = 0;
 
-            String getCartSql = "SELECT product_name, price, quantity, product_index, category FROM cart_items WHERE user_id = ?";
+            String getCartSql = "SELECT product_name, price, quantity, product_id, category FROM cart_items WHERE user_id = ?";
             PreparedStatement getCartStmt = AppConfig.connection.prepareStatement(getCartSql);
             getCartStmt.setInt(1, userId);
             ResultSet rs = getCartStmt.executeQuery();
@@ -371,17 +338,17 @@ public class ApiController {
                 String name = rs.getString("product_name");
                 float price = rs.getFloat("price");
                 int quantity = rs.getInt("quantity");
-                int productIndex = rs.getInt("product_index");
+                Long productId = rs.getLong("product_id");
                 String category = rs.getString("category");
 
                 Map<String, Object> item = new HashMap<>();
                 item.put("name", name);
                 item.put("price", price);
                 item.put("quantity", quantity);
-                item.put("productIndex", productIndex);
+                item.put("productId", productId);
                 item.put("category", category);
                 cartItems.add(item);
-                orderTotal += (price * quantity);
+                subtotal += (price * quantity);
             }
 
             if (cartItems.isEmpty()) {
@@ -392,6 +359,11 @@ public class ApiController {
                 );
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
+
+            // Calculate tax (3% tax rate)
+            int taxRate = 3;
+            float tax = subtotal * taxRate / 100f;
+            float orderTotal = subtotal + tax;
 
 
             String insertOrderSql = "INSERT INTO orders (user_id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -428,14 +400,14 @@ public class ApiController {
                 return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            String insertOrderItemSql = "INSERT INTO order_items (order_id, product_name, category, product_index, price, quantity) VALUES (?, ?, ?, ?, ?, ?)";
+            String insertOrderItemSql = "INSERT INTO order_items (order_id, product_name, category, product_id, price, quantity) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement insertOrderItemStmt = AppConfig.connection.prepareStatement(insertOrderItemSql);
 
             for (Map<String, Object> item : cartItems) {
                 insertOrderItemStmt.setInt(1, orderId);
                 insertOrderItemStmt.setString(2, (String) item.get("name"));
                 insertOrderItemStmt.setString(3, (String) item.get("category"));
-                insertOrderItemStmt.setInt(4, (Integer) item.get("productIndex"));
+                insertOrderItemStmt.setLong(4, (Long) item.get("productId"));
                 insertOrderItemStmt.setFloat(5, (Float) item.get("price"));
                 insertOrderItemStmt.setInt(6, (Integer) item.get("quantity"));
                 insertOrderItemStmt.addBatch();
@@ -488,55 +460,192 @@ public class ApiController {
             return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
 
-        String[][] targetArray = null;
-        String normalizedCategory = category.toLowerCase();
+        try {
+            // Find the product in the database
+            String sql = "SELECT id, name FROM products WHERE category = ? AND name = ?";
+            PreparedStatement stmt = AppConfig.connection.prepareStatement(sql);
+            stmt.setString(1, category);
+            stmt.setString(2, productName);
+            ResultSet rs = stmt.executeQuery();
 
-        switch (normalizedCategory) {
-            case "bracelets":
-                targetArray = AppConfig.bracelets;
-                break;
-            case "earrings":
-                targetArray = AppConfig.earrings;
-                break;
-            case "necklaces":
-                targetArray = AppConfig.necklaces;
-                break;
-            case "rings":
-                targetArray = AppConfig.rings;
-                break;
-            default:
-                Response errorResponse = Response.message("Unknown product category: " + category, RESPONSE_TYPE.ERROR);
-                return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-        }
-
-        boolean productFound = false;
-        String foundProductName = null;
-
-        for (String[] item : targetArray) {
-            if (item.length >= 4 && item[0].equalsIgnoreCase(productName)) {
-                try {
-                    item[3] = String.valueOf(newStock);
-                    foundProductName = item[0];
-                    productFound = true;
-                    break;
-                } catch (NumberFormatException e) {
-                    Response errorResponse = Response.message("Internal data error: Existing stock for '" + item[0] + "' is not a valid number.", RESPONSE_TYPE.ERROR);
+            if (rs.next()) {
+                Long productId = rs.getLong("id");
+                String foundProductName = rs.getString("name");
+                
+                // Update the stock
+                InventoryService inventoryService = new InventoryService();
+                boolean updated = inventoryService.updateStock(productId, newStock);
+                
+                if (updated) {
+                    Response successResponse = Response.message(
+                            "Stock for '" + foundProductName + "' updated successfully to " + newStock + ".",
+                            RESPONSE_TYPE.SUCCESS
+                    );
+                    return new ResponseEntity<>(successResponse, HttpStatus.OK);
+                } else {
+                    Response errorResponse = Response.message(
+                            "Failed to update stock for '" + foundProductName + "'.",
+                            RESPONSE_TYPE.ERROR
+                    );
                     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
+            } else {
+                Response errorResponse = Response.message(
+                        "Product '" + productName + "' not found in category '" + category + "'.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
-        }
-
-        if (productFound) {
-            Response successResponse = Response.message(
-                    "Stock for '" + foundProductName + "' updated successfully to " + newStock + ".",
-                    RESPONSE_TYPE.SUCCESS
-            );
-            return new ResponseEntity<>(successResponse, HttpStatus.OK);
-        } else {
+        } catch (SQLException e) {
+            e.printStackTrace();
             Response errorResponse = Response.message(
-                    "Product '" + productName + "' not found in category '" + category + "'.",
+                    "Database error: " + e.getMessage(),
                     RESPONSE_TYPE.ERROR
             );
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }}
+    }
+
+    @PostMapping("/products")
+    public ResponseEntity<Response> createProduct(@RequestBody Product product) {
+        if (product.getName() == null || product.getName().trim().isEmpty() ||
+                product.getDescription() == null || product.getDescription().trim().isEmpty() ||
+                product.getCategory() == null || product.getCategory().trim().isEmpty() ||
+                product.getPrice() == null || product.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0 ||
+                product.getStock() < 0) {
+            
+            Response errorResponse = Response.message(
+                    "Invalid product data. Please provide all required fields with valid values.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            InventoryService inventoryService = new InventoryService();
+            Product createdProduct = inventoryService.createProduct(product);
+            
+            if (createdProduct != null) {
+                Response successResponse = Response.message(
+                        "Product '" + product.getName() + "' created successfully!",
+                        RESPONSE_TYPE.SUCCESS
+                );
+                return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
+            } else {
+                Response errorResponse = Response.message(
+                        "Failed to create product.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Response errorResponse = Response.message(
+                    "Error creating product: " + e.getMessage(),
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Response> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        if (product.getName() == null || product.getName().trim().isEmpty() ||
+                product.getDescription() == null || product.getDescription().trim().isEmpty() ||
+                product.getCategory() == null || product.getCategory().trim().isEmpty() ||
+                product.getPrice() == null || product.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0 ||
+                product.getStock() < 0) {
+            
+            Response errorResponse = Response.message(
+                    "Invalid product data. Please provide all required fields with valid values.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            product.setId(id);
+            InventoryService inventoryService = new InventoryService();
+            boolean updated = inventoryService.updateProduct(product);
+            
+            if (updated) {
+                Response successResponse = Response.message(
+                        "Product '" + product.getName() + "' updated successfully!",
+                        RESPONSE_TYPE.SUCCESS
+                );
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+            } else {
+                Response errorResponse = Response.message(
+                        "Product not found or failed to update.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Response errorResponse = Response.message(
+                    "Error updating product: " + e.getMessage(),
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Response> deleteProduct(@PathVariable Long id) {
+        try {
+            InventoryService inventoryService = new InventoryService();
+            boolean deleted = inventoryService.deleteProduct(id);
+            
+            if (deleted) {
+                Response successResponse = Response.message(
+                        "Product deleted successfully!",
+                        RESPONSE_TYPE.SUCCESS
+                );
+                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+            } else {
+                Response errorResponse = Response.message(
+                        "Product not found or failed to delete.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Response errorResponse = Response.message(
+                    "Error deleting product: " + e.getMessage(),
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<List<ProductData>> getAllProducts() {
+        try {
+            InventoryService inventoryService = new InventoryService();
+            List<ProductData> products = inventoryService.getAllProducts();
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/products/{id}")
+    public ResponseEntity<ProductData> getProductById(@PathVariable Long id) {
+        try {
+            InventoryService inventoryService = new InventoryService();
+            ProductData product = inventoryService.getProductById(id);
+            
+            if (product != null) {
+                return new ResponseEntity<>(product, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}

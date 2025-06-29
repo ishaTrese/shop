@@ -1,34 +1,99 @@
 package com.project.shop;
 
+import com.project.model.Product;
 import com.project.model.ProductData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryService {
+    private ProductRepository productRepository;
 
-    public List<ProductData> getAllProducts() {
-        List<ProductData> products = new ArrayList<>();
-        long idCounter = 1L;
-
-        idCounter = processCategory(products, AppConfig.bracelets, "Bracelets", idCounter);
-        idCounter = processCategory(products, AppConfig.earrings, "Earrings", idCounter);
-        idCounter = processCategory(products, AppConfig.necklaces, "Necklaces", idCounter);
-        idCounter = processCategory(products, AppConfig.rings, "Rings", idCounter);
-
-        return products;
+    public InventoryService() {
+        this.productRepository = new ProductRepository();
     }
 
-    private long processCategory(List<ProductData> allProducts, String[][] categoryData, String categoryName, long idCounter) {
-        for (String[] item : categoryData) {
-            if (item.length >= 4) {
-                String name = item[0];
-                String description = item[1];
-                String price = item[2];
-                int stock = Integer.parseInt(item[3]);
-                allProducts.add(new ProductData(idCounter++, name, description, categoryName, stock, price));
-            }
+    public List<ProductData> getAllProducts() {
+        List<Product> products = productRepository.getAllProducts();
+        List<ProductData> productDataList = new ArrayList<>();
+        
+        for (Product product : products) {
+            ProductData productData = new ProductData(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getCategory(),
+                product.getStock(),
+                product.getPrice().toString(),
+                product.getImageUrl()
+            );
+            productDataList.add(productData);
         }
-        return idCounter;
+        
+        return productDataList;
+    }
+
+    public List<ProductData> getProductsByCategory(String category) {
+        try {
+            System.out.println("InventoryService: Getting products for category: " + category);
+            List<Product> products = productRepository.getProductsByCategory(category);
+            System.out.println("InventoryService: Found " + products.size() + " products from repository");
+            
+            List<ProductData> productDataList = new ArrayList<>();
+            
+            for (Product product : products) {
+                ProductData productData = new ProductData(
+                    product.getId(),
+                    product.getName(),
+                    product.getDescription(),
+                    product.getCategory(),
+                    product.getStock(),
+                    product.getPrice().toString(),
+                    product.getImageUrl()
+                );
+                productDataList.add(productData);
+            }
+            
+            System.out.println("InventoryService: Converted to " + productDataList.size() + " ProductData objects");
+            return productDataList;
+        } catch (Exception e) {
+            System.err.println("ERROR in InventoryService.getProductsByCategory: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public ProductData getProductById(Long id) {
+        return productRepository.getProductById(id)
+            .map(product -> new ProductData(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getCategory(),
+                product.getStock(),
+                product.getPrice().toString(),
+                product.getImageUrl()
+            ))
+            .orElse(null);
+    }
+
+    public Product createProduct(Product product) {
+        return productRepository.createProduct(product);
+    }
+
+    public boolean updateProduct(Product product) {
+        return productRepository.updateProduct(product);
+    }
+
+    public boolean updateStock(Long productId, int newStock) {
+        return productRepository.updateStock(productId, newStock);
+    }
+
+    public boolean deleteProduct(Long id) {
+        return productRepository.deleteProduct(id);
+    }
+
+    public void initializeProducts() {
+        productRepository.initializeProducts();
     }
 }

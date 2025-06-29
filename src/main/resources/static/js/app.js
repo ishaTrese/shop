@@ -154,34 +154,20 @@ if (productAddToCart) {
     productAddToCart.forEach(button => {
         button.addEventListener('click', async function(event) {
             event.preventDefault();
-            const productParam = window.location.pathname.split('/').pop();
-            const [index, category] = productParam.split('-');
-            const itemIndex = parseInt(index);
-            let currentCategory;
-            switch (category) {
-                case 'A':
-                    currentCategory = 'bracelets';
-                    break;
-                case 'B':
-                    currentCategory = 'earrings';
-                    break;
-                case 'C':
-                    currentCategory = 'necklaces';
-                    break;
-                case 'D':
-                    currentCategory = 'rings';
-                    break;
-                default:
-                    currentCategory = 's';
-                    break;
+            
+            // Get product ID from the page (we'll need to add this to the product template)
+            const productIdElement = document.querySelector('[data-product-id]');
+            if (!productIdElement) {
+                alert('Product information not found. Please refresh the page.');
+                return;
             }
-
-            const url = '/api/add-to-cart';
+            
+            const productId = parseInt(productIdElement.dataset.productId);
             const quantity = document.querySelector('input.quantity-input');
-            const data = { index: itemIndex, quantity: quantity.value, category: currentCategory };
+            const data = { productId: productId, quantity: parseInt(quantity.value) };
 
             try {
-                const response = await fetch(url, {
+                const response = await fetch('/api/add-to-cart', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -223,9 +209,9 @@ if (addToCartButtons) {
         button.addEventListener('click', async function(event) {
             event.preventDefault();
 
-            const itemIndex = event.target.dataset.index;
+            const productId = event.target.dataset.productId;
             const url = '/api/add-to-cart';
-            const data = { index: itemIndex, quantity: 1, category: currentCategory };
+            const data = { productId: parseInt(productId), quantity: 1 };
 
             try {
                 const response = await fetch(url, {
@@ -257,12 +243,10 @@ if (removeFromCartButtons) {
         button.addEventListener('click', async function(event) {
             event.preventDefault();
 
-            const itemIndex = button.getAttribute('data-index');
-            const category = button.getAttribute('data-category');
+            const productId = button.getAttribute('data-product-id');
 
             const data = {
-                index: parseInt(itemIndex),
-                category: category
+                productId: parseInt(productId)
             };
 
             try {
@@ -475,3 +459,34 @@ async function updateStock(productId) {
         alert("A network error occurred while communicating with the server. Please try again.");
     }
 }
+
+// Payment method selection functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethods = document.querySelectorAll('input[name="payment-method"]');
+    const cardSection = document.getElementById('card-payment-section');
+    const cardExpiry = document.getElementById('card-expiry');
+
+    // Toggle card payment section visibility
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            if (this.value === 'card') {
+                cardSection.style.display = 'block';
+            } else {
+                cardSection.style.display = 'none';
+            }
+        });
+    });
+
+    // Auto-format card expiry with "/"
+    if (cardExpiry) {
+        cardExpiry.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            
+            e.target.value = value;
+        });
+    }
+});

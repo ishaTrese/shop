@@ -1,6 +1,6 @@
-<div class="product-container" xmlns:th="http://www.thymeleaf.org" th:fragment="product">
+<div class="product-container" xmlns:th="http://www.thymeleaf.org" th:fragment="product" th:data-product-id="${productId}">
     <div class="product-image">
-        <img th:src="@{/images/__${category}__/__${index}__.png}" alt="Product Image">
+        <img th:src="${imageUrl}" alt="Product Image">
     </div>
 
     <div class="product-details">

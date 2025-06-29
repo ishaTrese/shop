@@ -16,7 +16,7 @@
             <td class="value-total" th:text="'₱' + ${item.total}">₱ 0.00</td>
             <td class="value-remove">
                 <button class="remove-from-cart-btn"
-                        th:attr="data-index=${item['index']}, data-category=${item['category']}">
+                        th:attr="data-product-id=${item['productId']}">
                     X
                 </button>
             </td>

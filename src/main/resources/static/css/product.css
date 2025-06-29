@@ -1,4 +1,4 @@
- .product-container {
+.product-container {
     display: flex;
     gap: 40px;
     max-width: 1200px;

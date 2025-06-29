@@ -1,172 +1,221 @@
 .orders-container {
-    max-width: 960px;
-    margin: 30px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 75%;
+    margin: 0 auto;
+    font-size: 1rem;
+    margin: 1rem;
 }
 
 .orders-heading {
-    font-size: 2.25rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 25px;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: black;
+    margin-bottom: 2rem;
     text-align: center;
+    border-bottom: 1px solid black;
+    padding-bottom: 1rem;
 }
 
 .no-orders-message {
     text-align: center;
     color: #666;
-    margin-top: 40px;
-    font-size: 1.125rem;
-    padding: 20px;
-    border: 1px dashed #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    margin-top: 2rem;
+    font-size: 1.2rem;
+    padding: 2rem;
+    border: 1px solid black;
+    background-color: #d9d9d9;
 }
 
 .start-shopping-btn {
     display: inline-block;
-    margin-top: 20px;
-    background-color: #007bff;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 10px 25px;
-    border-radius: 6px;
+    margin-top: 1rem;
+    background-color: black;
+    color: white;
+    font-weight: 300;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid black;
     text-decoration: none;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .start-shopping-btn:hover {
-    background-color: #0056b3;
+    background-color: #fae8f5;
+    color: black;
 }
 
-.orders-list {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
+.orders-table-container {
+    background: white;
+    border: 1px solid black;
+    border-radius: 0;
+    overflow: hidden;
 }
 
-.order-card {
-    background-color: #fcfcfc;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-.order-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 10px 20px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px dashed #e0e0e0;
+.orders-table th {
+    background-color: #d9d9d9;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 300;
+    color: black;
+    border-bottom: 1px solid black;
+    font-size: 1rem;
 }
 
-.order-summary-item {
-    font-size: 0.95rem;
-    color: #444;
-    line-height: 1.5;
+.orders-table td {
+    padding: 1rem;
+    border-bottom: 1px solid black;
+    font-size: 1rem;
+    color: black;
+    vertical-align: top;
 }
 
-.order-summary-item strong {
-    color: #333;
+.orders-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.order-id {
+    font-weight: 700;
+    color: black;
+}
+
+.order-date {
+    color: black;
+}
+
+.order-amount {
+    font-weight: 700;
+    color: black;
+}
+
+.order-status {
+    text-align: center;
 }
 
 .status-delivered {
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 300;
     color: #1a6d2f;
     background-color: #d4edda;
-    border-radius: 9999px;
+    border: 1px solid #1a6d2f;
+    border-radius: 0;
     display: inline-block;
 }
 
 .status-processing {
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 300;
     color: #8a6d00;
     background-color: #fff3cd;
-    border-radius: 9999px;
+    border: 1px solid #8a6d00;
+    border-radius: 0;
     display: inline-block;
 }
 
 .status-shipped {
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 300;
     color: #004085;
     background-color: #cce5ff;
-    border-radius: 9999px;
+    border: 1px solid #004085;
+    border-radius: 0;
     display: inline-block;
 }
 
-.order-items-table-wrapper {
-    overflow-x: auto;
+.shipping-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
 }
 
-.order-items-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #ffffff;
-    border: 1px solid #f0f0f0;
-    border-radius: 5px;
-    overflow: hidden;
+.shipping-name {
+    font-weight: 700;
+    color: black;
 }
 
-.order-items-table thead tr {
-    background-color: #fafafa;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.table-header-item {
-    padding: 10px 15px;
-    text-align: left;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
-}
-
-.order-items-table tbody tr {
-    border-bottom: 1px solid #f8f8f8;
-}
-
-.order-items-table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.order-items-table tbody tr:hover {
-    background-color: #fdfdfd;
-}
-
-.table-data-item {
-    padding: 10px 15px;
+.shipping-address {
+    color: black;
     font-size: 0.9rem;
-    color: #555;
+}
+
+.shipping-contact {
+    color: black;
+    font-size: 0.9rem;
+}
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border: 1px solid #d9d9d9;
+    background-color: #f9f9f9;
+}
+
+.item-name {
+    font-weight: 700;
+    color: black;
+    flex: 2;
+}
+
+.item-category {
+    color: black;
+    flex: 1;
+    text-align: center;
+}
+
+.item-price {
+    font-weight: 700;
+    color: black;
+    flex: 1;
+    text-align: center;
+}
+
+.item-quantity {
+    color: black;
+    flex: 0.5;
+    text-align: center;
 }
 
 @media (max-width: 768px) {
     .orders-container {
-        margin: 20px 10px;
-        padding: 15px;
+        width: 95%;
+        margin: 1rem auto;
     }
+    
     .orders-heading {
-        font-size: 1.75rem;
-        margin-bottom: 20px;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
     }
-    .order-summary {
-        grid-template-columns: 1fr;
+    
+    .orders-table th,
+    .orders-table td {
+        padding: 0.8rem 0.5rem;
+        font-size: 0.9rem;
     }
-    .table-header-item,
-    .table-data-item {
-        padding: 8px 10px;
+    
+    .item-row {
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: center;
+    }
+    
+    .item-name,
+    .item-category,
+    .item-price,
+    .item-quantity {
+        flex: none;
+        text-align: center;
     }
 }

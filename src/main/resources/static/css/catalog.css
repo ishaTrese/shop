@@ -19,10 +19,10 @@
 }
 
 .item-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
 .items {
@@ -30,8 +30,8 @@
     flex-direction: column;
     width: 230px;
     height: 300px;
-    margin: 12px;
     border: 1px solid black;
+    justify-self: center;
 }
 
 .add-to-cart {

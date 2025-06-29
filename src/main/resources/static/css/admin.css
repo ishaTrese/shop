@@ -1,76 +1,74 @@
 .admin-container {
-    max-width: 1400px;
-    background: #d9d9d9;
-    padding: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    margin-top: 2.5rem;
-    margin-bottom: 2.5rem;
-    width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Inter-24pt', sans-serif;
 }
 
 .panel-tabs {
-    overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #f1f1f1;
-    margin-bottom: 20px;
     display: flex;
-    justify-content: flex-start;
-    border-bottom: none;
+    border-bottom: 1px solid black;
+    margin-bottom: 30px;
+    background-color: #d9d9d9;
+    overflow: hidden;
 }
 
 .tab-button {
-    background-color: inherit;
+    background: none;
     border: none;
-    outline: none;
+    padding: 18px 30px;
+    font-size: 16px;
+    font-weight: 300;
+    color: black;
     cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-    font-size: 17px;
-    border: 1px solid transparent;
-    border-bottom: none;
-    margin-bottom: -1px;
-    position: relative;
-    color: #4b5563;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+}
+
+.tab-button span {
+    font-size: 18px;
 }
 
 .tab-button:hover {
-    background-color: #ddd;
-    color: #1f2937;
+    background-color: #b8b8b8;
+    text-decoration: underline;
 }
 
-.tab-button.active-tab-button {
-    background-color: #ccc;
-    color: #1f2937;
-    border: 1px solid #ccc;
-    border-bottom-color: transparent;
-    cursor: default;
+.tab-button.active {
+    color: black;
+    border-bottom-color: black;
+    background-color: #b8b8b8;
 }
 
 .panel-content {
     display: none;
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-top: none;
-    background-color: #ffffff;
+}
+
+.panel-content:first-child {
+    display: block;
 }
 
 .panel-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 16px;
-    padding: 16px 12px 0;
+    font-size: 40px;
+    font-weight: 900;
+    color: black;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid black;
 }
 
 .panel-info-box {
-    background-color: #f9fafb;
+    background-color: #d9d9d9;
     padding: 16px;
-    border-radius: 8px;
-    color: #374151;
+    border-radius: 0;
+    color: black;
     margin: 0 12px 24px;
+    border: 1px solid black;
 }
 
 .panel-info-text {
@@ -91,21 +89,21 @@
 .panel-info-note {
     margin-top: 16px;
     font-size: 14px;
-    color: #6b7280;
+    color: #666;
 }
 
 .order-search-box {
     margin: 24px 12px 0;
     padding: 16px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    background-color: #ffffff;
+    border: 1px solid black;
+    border-radius: 0;
+    background-color: #d9d9d9;
 }
 
 .order-search-title {
     font-size: 20px;
-    font-weight: 500;
-    color: #374151;
+    font-weight: 300;
+    color: black;
     margin-bottom: 12px;
 }
 
@@ -118,279 +116,888 @@
 .order-search-input {
     flex-grow: 1;
     padding: 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border: 1px solid black;
+    border-radius: 0;
     font-size: 16px;
     outline: none;
+    background-color: white;
 }
 
 .order-search-input:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 1px #4f46e5;
+    border-color: black;
+    box-shadow: none;
 }
 
 .order-search-button {
     padding: 8px 16px;
-    background-color: #4f46e5;
-    color: #ffffff;
-    font-weight: 600;
-    border-radius: 6px;
-    border: none;
+    background-color: #d9d9d9;
+    color: black;
+    font-weight: 300;
+    border-radius: 0;
+    border: 1px solid black;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out;
     outline: none;
 }
 
 .order-search-button:hover {
-    background-color: #4338ca;
-}
-
-.order-search-button:focus {
-    box-shadow: 0 0 0 2px #4f46e5, 0 0 0 4px rgba(79, 70, 229, 0.4);
+    background-color: #b8b8b8;
+    text-decoration: underline;
 }
 
 .table-container {
-    overflow-x: auto;
-    margin: 0 0 20px 0;
-    padding: 0 12px;
+    background: white;
+    border-radius: 0;
+    overflow: hidden;
+    border: 1px solid black;
 }
 
 .order-table, .inventory-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0;
-    background: #d9d9d9;
-    border: 1px solid black;
 }
-.order-table thead, .inventory-table thead {
-    background: #d9d9d9;
-}
+
 .order-table th, .inventory-table th {
-    color: black;
-    font-weight: 600;
-    font-size: 13px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    padding: 18px 16px;
+    background-color: #d9d9d9;
+    padding: 15px;
     text-align: left;
-    border: 1px solid black;
-    position: relative;
-}
-.order-table th:not(:last-child)::after, .inventory-table th:not(:last-child)::after {
-    display: none;
-}
-.order-table tbody tr, .inventory-table tbody tr {
-    transition: all 0.2s ease;
-    border: 1px solid black;
-}
-.order-table tbody tr:last-child, .inventory-table tbody tr:last-child {
+    font-weight: 300;
+    color: black;
     border-bottom: 1px solid black;
+    font-size: 14px;
 }
+
 .order-table td, .inventory-table td {
-    padding: 16px;
-    vertical-align: middle;
-    border: 1px solid black;
+    padding: 15px;
+    border-bottom: 1px solid black;
+    font-size: 14px;
+    color: black;
 }
 
 .admin-order-no {
-    font-weight: 600;
+    font-weight: 300;
     color: black;
-    font-size: 14px;
-    letter-spacing: 0.5px;
 }
+
 .admin-date {
     color: black;
-    font-size: 14px;
-    font-weight: 500;
 }
+
 .admin-amount {
-    font-weight: 700;
+    font-weight: 300;
     color: black;
+}
+
+.admin-status {
+    padding: 4px 8px;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 300;
+    text-transform: uppercase;
+    border: 1px solid black;
+}
+
+.admin-status.pending {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.admin-status.processing {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.admin-status.shipped {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.admin-status.delivered {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.admin-status.status-default { 
+    background-color: #d9d9d9; 
+    color: black; 
+}
+
+.admin-shipping {
+    color: black;
+}
+
+.shipping-name {
+    font-weight: 300;
+    margin-bottom: 4px;
+}
+
+.shipping-address {
+    font-size: 12px;
+    color: black;
+}
+
+.no-orders {
+    text-align: center;
+    padding: 40px;
+    color: black;
+}
+
+.no-orders h3 {
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    color: black;
+}
+
+.no-orders p {
+    font-size: 14px;
+    color: black;
+}
+
+.inventory-status-badge {
+    padding: 4px 8px;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 300;
+    text-transform: uppercase;
+    border: 1px solid black;
+}
+
+.status-low {
+    background-color: #ffebee;
+    color: #c62828;
+    border-color: #c62828;
+}
+
+.status-normal {
+    background-color: #e8f5e8;
+    color: #2e7d32;
+    border-color: #2e7d32;
+}
+
+.status-high {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    border-color: #ef6c00;
+}
+
+.inventory-stock-input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid black;
+    border-radius: 0;
+    font-size: 14px;
+    background-color: white;
+}
+
+.inventory-update-btn {
+    background-color: #d9d9d9;
+    color: black;
+    border: 1px solid black;
+    padding: 8px 16px;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.inventory-update-btn:hover {
+    background-color: #b8b8b8;
+    text-decoration: underline;
+}
+
+.no-inventory-items {
+    text-align: center;
+    padding: 40px;
+    color: black;
+}
+
+.no-items-title {
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 10px;
+    color: black;
+}
+
+.no-items-text {
+    font-size: 14px;
+    color: black;
+}
+
+.add-product-section {
+    background-color: #d9d9d9;
+    padding: 30px;
+    border-radius: 0;
+    margin-bottom: 30px;
+    border: 1px solid black;
+}
+
+.add-product-section h3 {
+    font-size: 20px;
+    font-weight: 300;
+    color: black;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.add-product-section h3::before {
+    content: '➕';
+    font-size: 18px;
+    color: black;
+}
+
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.form-group label {
+    font-weight: 300;
+    color: black;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 15px;
+    border: 1px solid black;
+    border-radius: 0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: white;
+    font-family: 'Inter-24pt', sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: black;
+    box-shadow: none;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group input::placeholder {
+    color: #666;
+    font-style: italic;
+}
+
+.btn-primary {
+    background-color: #d9d9d9;
+    color: black;
+    border: 1px solid black;
+    padding: 15px 30px;
+    border-radius: 0;
+    font-size: 16px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+    background-color: #b8b8b8;
+    text-decoration: underline;
+}
+
+.product-list-section {
+    background: white;
+    border-radius: 0;
+    overflow: hidden;
+    border: 1px solid black;
+}
+
+.product-list-section h3 {
+    font-size: 20px;
+    font-weight: 300;
+    color: black;
+    margin: 0;
+    padding: 25px 25px 20px;
+    background-color: #d9d9d9;
+    border-bottom: 1px solid black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.product-list-section h3::before {
+    content: '📋';
+    font-size: 18px;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.product-table th {
+    background-color: #d9d9d9;
+    color: black;
+    padding: 18px 15px;
+    text-align: left;
+    font-weight: 300;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid black;
+}
+
+.product-table td {
+    padding: 18px 15px;
+    border-bottom: 1px solid black;
+    font-size: 14px;
+    color: black;
+    transition: background-color 0.2s ease;
+}
+
+.product-table tbody tr:hover {
+    background-color: #f0f0f0;
+}
+
+.product-table tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.product-table tbody tr:nth-child(even):hover {
+    background-color: #f0f0f0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-edit,
+.btn-delete {
+    padding: 8px 16px;
+    border: 1px solid black;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-edit {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.btn-edit:hover {
+    background-color: #b8b8b8;
+    text-decoration: underline;
+}
+
+.btn-delete {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.btn-delete:hover {
+    background-color: #b8b8b8;
+    text-decoration: underline;
+}
+
+/* Category and Stock Badges */
+.category-badge {
+    background-color: #d9d9d9;
+    color: black;
+    padding: 4px 12px;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid black;
+}
+
+.stock-badge {
+    padding: 4px 12px;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid black;
+}
+
+.stock-low {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.stock-normal {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+.stock-high {
+    background-color: #d9d9d9;
+    color: black;
+}
+
+/* Enhanced button styling with icons */
+.btn-edit span,
+.btn-delete span {
+    margin-right: 4px;
+}
+
+/* Loading state for submit button */
+.btn-primary.loading {
+    background-color: #b8b8b8;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-primary.loading::after {
+    content: '⏳';
+    margin-left: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success message styling */
+.success-message {
+    background-color: #d9d9d9;
+    color: black;
+    padding: 15px 20px;
+    border-radius: 0;
+    margin-bottom: 20px;
+    border-left: 4px solid black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 300;
+    border: 1px solid black;
+}
+
+.success-message::before {
+    content: '✅';
     font-size: 16px;
 }
 
-
-.admin-status {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    text-align: center;
+/* Error message styling */
+.error-message {
+    background-color: #d9d9d9;
+    color: black;
+    padding: 15px 20px;
+    border-radius: 0;
+    margin-bottom: 20px;
+    border-left: 4px solid black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 300;
+    border: 1px solid black;
 }
-.admin-status.pending { background: #fff3cd; color: #856404; }
-.admin-status.processing { background: #cce7ff; color: #0066cc; }
-.admin-status.shipped { background: #d4edda; color: #155724; }
-.admin-status.delivered { background: #d1ecf1; color: #0c5460; }
-.admin-status.cancelled { background: #f8d7da; color: #721c24; }
 
-.admin-status.status-default { background-color: #e5e7eb; color: #374151; }
+.error-message::before {
+    content: '❌';
+    font-size: 16px;
+}
 
+/* Customer Information Panel Styles */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
 
-.admin-shipping {
+.stat-card {
+    background-color: #d9d9d9;
+    border-radius: 0;
+    padding: 25px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: black;
+}
+
+.stat-card:hover {
+    background-color: #b8b8b8;
+}
+
+.stat-icon {
+    font-size: 32px;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    border-radius: 0;
+    flex-shrink: 0;
+    border: 1px solid black;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 300;
+    color: black;
+    margin: 0 0 5px 0;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: black;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 300;
+}
+
+/* Recent Activity Section */
+.recent-activity-section {
+    background-color: #d9d9d9;
+    border-radius: 0;
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid black;
+}
+
+.recent-activity-section h3 {
+    font-size: 20px;
+    font-weight: 300;
+    color: black;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recent-activity-section h3::before {
+    content: '📈';
+    font-size: 18px;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 0;
+    border-left: 4px solid black;
+    transition: all 0.3s ease;
+    border: 1px solid black;
+}
+
+.activity-item:hover {
+    background-color: #f0f0f0;
+}
+
+.activity-icon {
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d9d9d9;
+    color: black;
+    border-radius: 0;
+    flex-shrink: 0;
+    border: 1px solid black;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    color: black;
+    line-height: 1.4;
+}
+
+.activity-time {
+    margin: 0;
+    font-size: 12px;
+    color: black;
+    font-style: italic;
+}
+
+.no-activity {
+    text-align: center;
+    padding: 40px;
+    color: black;
+    font-style: italic;
+}
+
+/* Demographics Section */
+.demographics-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+}
+
+.demographics-section h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.demographics-section h3::before {
+    content: '📊';
+    font-size: 18px;
+}
+
+.demographics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.demo-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.demo-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.customer-list,
+.category-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.customer-item,
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.customer-item:hover,
+.category-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(3px);
+}
+
+.customer-name,
+.category-name {
+    font-weight: 600;
     color: #495057;
     font-size: 14px;
-    line-height: 1.4;
-    max-width: 200px;
 }
-.shipping-name {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 2px;
-}
-.shipping-address {
+
+.customer-orders,
+.category-sales {
+    font-size: 12px;
     color: #6c757d;
-    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-
-@media (max-width: 1200px) {
-    .admin-shipping {
-        max-width: 150px;
-        font-size: 13px;
-    }
-}
+/* Responsive adjustments */
 @media (max-width: 768px) {
-
     .admin-container {
-        width: auto;
-        margin: 10px;
-        border-radius: 8px;
-        padding: 0;
-    }
-    .order-table th,
-    .order-table td,
-    .inventory-table th,
-    .inventory-table td {
-        padding: 12px 8px;
-        font-size: 12px;
-    }
-    .order-table th,
-    .inventory-table th {
-        font-size: 11px;
-    }
-    .admin-order-no {
-        font-size: 12px;
-    }
-    .admin-amount {
-        font-size: 14px;
-    }
-    .admin-shipping {
-        max-width: 120px;
-        font-size: 12px;
-    }
-    .admin-status {
-        font-size: 10px;
-        padding: 4px 8px;
-    }
-    .inventory-stock-input {
-        padding: 4px 6px;
-        font-size: 12px;
-    }
-    .inventory-update-btn {
-        padding: 6px 10px;
-        font-size: 12px;
-    }
-}
-@media (max-width: 480px) {
-    body {
         padding: 10px;
     }
-    .order-table, .inventory-table {
-        font-size: 11px;
+    
+    .panel-tabs {
+        flex-direction: column;
     }
-    .order-table th,
-    .order-table td,
-    .inventory-table th,
-    .inventory-table td {
-        padding: 8px 4px;
+    
+    .tab-button {
+        text-align: left;
+        border-bottom: 1px solid black;
+        justify-content: flex-start;
+        padding: 15px 20px;
     }
-    .admin-shipping {
-        max-width: 100px;
+    
+    .tab-button span {
+        font-size: 16px;
     }
-    .panel-tabs .tab-button {
-        font-size: 14px;
-        padding: 10px 8px;
+    
+    .form-row {
+        grid-template-columns: 1fr;
     }
-    .panel-title {
-        font-size: 20px;
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
     }
-    .panel-info-text, .panel-info-note, .no-orders-text, .no-items-text {
-        font-size: 12px;
+    
+    .btn-edit,
+    .btn-delete {
+        width: 100%;
+        justify-content: center;
     }
-    .no-orders-title, .no-items-title {
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .product-table,
+    .inventory-table,
+    .order-table {
+        min-width: 600px;
+    }
+    
+    .category-badge,
+    .stock-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    .stat-number {
+        font-size: 24px;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .activity-icon {
+        width: 35px;
+        height: 35px;
         font-size: 16px;
     }
 }
 
-.no-orders, .no-inventory-items {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6c757d;
-    background: #d9d9d9;
+.category-section {
+    margin-bottom: 40px;
+    border: 1px solid black;
+    border-radius: 0;
+    background-color: white;
+    overflow: hidden;
 }
-.no-orders h3, .no-items-title {
-    color: #495057;
-    margin-bottom: 10px;
-    font-weight: 600;
-}
-.no-orders p, .no-items-text {
+
+.category-title {
+    background-color: #d9d9d9;
+    padding: 15px 20px;
     margin: 0;
-    font-size: 14px;
+    font-size: 24px;
+    font-weight: 700;
+    color: black;
+    border-bottom: 1px solid black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-
-.inventory-status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    text-transform: uppercase;
-}
-.status-low { background-color: #fecaca; color: #991b1b; }
-.status-normal { background-color: #d1fae5; color: #065f46; }
-.status-high { background-color: #bfdbfe; color: #1e40af; }
-
-.inventory-stock-input-cell {
-    width: 120px;
-}
-.inventory-stock-input {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-    outline: none;
-}
-.inventory-stock-input:focus {
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 1px #4f46e5;
-}
-
-.inventory-action-cell {
-    width: 100px;
-}
-.inventory-update-btn {
-    padding: 8px 12px;
-    background-color: #4f46e5;
-    color: #ffffff;
-    font-weight: 500;
-    border-radius: 4px;
+.category-section .table-container {
     border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
+    border-radius: 0;
 }
-.inventory-update-btn:hover {
-    background-color: #4338ca;
+
+.category-section .product-table,
+.category-section .inventory-table {
+    margin: 0;
 }
-.inventory-update-btn:focus {
-    box-shadow: 0 0 0 2px #4f46e5, 0 0 0 4px rgba(79, 70, 229, 0.4);
+
+.no-products-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
+}
+
+.no-inventory-items {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
 }

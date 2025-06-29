@@ -8,14 +8,29 @@
     </div>
     <div class="checkout-payment">
         <h1>Payment</h1>
-        <div class="checkout-card">
+        
+        <div class="payment-method-selection">
+            <h3>Select Payment Method</h3>
+            <div class="payment-options">
+                <label class="payment-option">
+                    <input type="radio" name="payment-method" value="cod" checked>
+                    <span class="payment-label">💵 Cash on Delivery (COD)</span>
+                </label>
+                <label class="payment-option">
+                    <input type="radio" name="payment-method" value="card">
+                    <span class="payment-label">💳 Credit/Debit Card</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="checkout-card" id="card-payment-section" style="display: none;">
             <h3 class="payment-label">
                 Credit/Debit Card
             </h3>
             <input placeholder="Card Number" id="card-number">
             <div class="card-security">
-                <input placeholder="Expiry Date (MM/YY)" id="card-expiry">
-                <input placeholder="CVV" id="card-cvv">
+                <input placeholder="Expiry Date (MM/YY)" id="card-expiry" maxlength="5">
+                <input placeholder="CVV" id="card-cvv" maxlength="4">
             </div>
         </div>
 

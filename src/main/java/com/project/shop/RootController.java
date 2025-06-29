@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,37 +37,52 @@ public class RootController {
 
     @GetMapping("/categories/{name}")
     public String catalog(@PathVariable String name, Model model) {
-        if (name.equalsIgnoreCase("rings")     ||
-            name.equalsIgnoreCase("earrings")  ||
-            name.equalsIgnoreCase("necklaces") ||
-            name.equalsIgnoreCase("bracelets"))
-        {
-            String type;
-            switch (name) {
-                case "bracelets":
-                    type = "A";
-                    break;
-                case "earrings":
-                    type = "B";
-                    break;
-                case "necklaces":
-                    type = "C";
-                    break;
-                case "rings":
-                    type = "D";
-                    break;
-                default:
-                    type = "none";
-                    break;
+        try {
+            if (name.equalsIgnoreCase("rings")     ||
+                name.equalsIgnoreCase("earrings")  ||
+                name.equalsIgnoreCase("necklaces") ||
+                name.equalsIgnoreCase("bracelets"))
+            {
+                String type;
+                switch (name) {
+                    case "bracelets":
+                        type = "A";
+                        break;
+                    case "earrings":
+                        type = "B";
+                        break;
+                    case "necklaces":
+                        type = "C";
+                        break;
+                    case "rings":
+                        type = "D";
+                        break;
+                    default:
+                        type = "none";
+                        break;
+                }
+                
+                // Get products from database for this category
+                System.out.println("Fetching products for category: " + name);
+                InventoryService inventoryService = new InventoryService();
+                List<ProductData> products = inventoryService.getProductsByCategory(StringUtils.capitalize(name));
+                System.out.println("Found " + products.size() + " products for category: " + name);
+                
+                model.addAttribute("type", type);
+                model.addAttribute("title", StringUtils.capitalize(name));
+                model.addAttribute("contentType", "catalog");
+                model.addAttribute("node", name.toLowerCase());
+                model.addAttribute("nodeName", name.toUpperCase());
+                model.addAttribute("category", name.toLowerCase());
+                model.addAttribute("products", products);
+                return "index";
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
-            model.addAttribute("type", type);
-            model.addAttribute("title", StringUtils.capitalize(name));
-            model.addAttribute("contentType", "catalog");
-            model.addAttribute("node", name.toLowerCase());
-            model.addAttribute("nodeName", name.toUpperCase());
-            return "index";
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            System.err.println("ERROR in catalog method for category '" + name + "': " + e.getMessage());
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error loading catalog: " + e.getMessage());
         }
     }
 
@@ -106,10 +122,10 @@ public class RootController {
 
         List<Map<String, Object>> cartItems = new ArrayList<>();
         float subtotal = 0;
-        float shippingFeePerItem = 10f;
+        float shippingFeePerItem = 10f; // TODO: change this to 0 for simplicity
 
         try {
-            String sql = "SELECT product_name, price, quantity, product_index, category FROM cart_items WHERE user_id = ?";
+            String sql = "SELECT product_name, price, quantity, product_id, category FROM cart_items WHERE user_id = ?";
             PreparedStatement stmt = AppConfig.connection.prepareStatement(sql);
             stmt.setInt(1, AppConfig.getCurrentUser());
 
@@ -122,7 +138,7 @@ public class RootController {
                 float shippingFee = 0;
                 float totalWithShipping = total + shippingFee;
 
-                int productIndex = rs.getInt("product_index");
+                Long productId = rs.getLong("product_id");
                 String category = rs.getString("category");
 
                 Map<String, Object> item = new HashMap<>();
@@ -131,7 +147,7 @@ public class RootController {
                 item.put("quantity", quantity);
                 item.put("shippingFee", shippingFee);
                 item.put("total", totalWithShipping);
-                item.put("index", productIndex);
+                item.put("productId", productId);
                 item.put("category", category);
                 cartItems.add(item);
                 subtotal += total;
@@ -152,7 +168,7 @@ public class RootController {
         model.addAttribute("taxAmount", tax);
         model.addAttribute("total", total);
 
-        return "index"; // Thymeleaf template
+        return "index";
     }
 
 
@@ -197,48 +213,45 @@ public class RootController {
         String[] parts = index.split("-");
         String type = parts[1];
         int idx = Integer.parseInt(parts[0]);
-        String name;
-        String description;
-        String price;
+        
+        // Get product from database using the index and type
+        InventoryService inventoryService = new InventoryService();
+        List<ProductData> products = new ArrayList<>();
+        
         String category;
         switch (type) {
             case "A":
-                name = AppConfig.bracelets[idx][0];
-                description = AppConfig.bracelets[idx][1];
-                price = AppConfig.bracelets[idx][2];
-                category = "bracelets";
+                category = "Bracelets";
                 break;
             case "B":
-                name = AppConfig.earrings[idx][0];
-                description = AppConfig.earrings[idx][1];
-                price = AppConfig.earrings[idx][2];
-                category = "earrings";
+                category = "Earrings";
                 break;
             case "C":
-                name = AppConfig.necklaces[idx][0];
-                description = AppConfig.necklaces[idx][1];
-                price = AppConfig.necklaces[idx][2];
-                category = "necklaces";
+                category = "Necklaces";
                 break;
             case "D":
-                name = AppConfig.rings[idx][0];
-                description = AppConfig.rings[idx][1];
-                price = AppConfig.rings[idx][2];
-                category = "rings";
+                category = "Rings";
                 break;
             default:
-                name = "none";
-                description = "none";
-                price = "none";
-                category = "none";
-                break;
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        model.addAttribute("title", name);
-        model.addAttribute("name", name);
-        model.addAttribute("description", description);
-        model.addAttribute("price", price);
-        model.addAttribute("category", category);
-        model.addAttribute("index", idx);
+        
+        products = inventoryService.getProductsByCategory(category);
+        
+        if (idx >= 0 && idx < products.size()) {
+            ProductData product = products.get(idx);
+            model.addAttribute("title", product.getName());
+            model.addAttribute("name", product.getName());
+            model.addAttribute("description", product.getDescription());
+            model.addAttribute("price", product.getPrice());
+            model.addAttribute("category", category.toLowerCase());
+            model.addAttribute("index", idx);
+            model.addAttribute("productId", product.getId());
+            model.addAttribute("imageUrl", product.getImageUrl());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        
         return "index";
     }
 
@@ -320,8 +333,16 @@ public class RootController {
         if (!AppConfig.userEmail.equalsIgnoreCase("admin@shop.com")) {
             return "redirect:/home";
         }
+        
         List<Map<String, Object>> orders = new ArrayList<>();
+        List<Map<String, Object>> recentOrders = new ArrayList<>();
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+        int totalUsers = 0;
+        BigDecimal averageOrderValue = BigDecimal.ZERO;
+        String topCategory = "N/A";
+        
         try {
+            // Get all orders
             String getOrdersSql = "SELECT id, order_date, total_amount, shipping_full_name, shipping_address, shipping_email, shipping_mobile_number FROM orders ORDER BY order_date DESC";
             PreparedStatement getOrdersStmt = AppConfig.connection.prepareStatement(getOrdersSql);
             ResultSet ordersRs = getOrdersStmt.executeQuery();
@@ -336,7 +357,6 @@ public class RootController {
                 String shippingMobileNumber = ordersRs.getString("shipping_mobile_number");
 
                 Map<String, Object> order = new HashMap<>();
-
                 order.put("id", orderId);
                 order.put("orderDate", orderDate);
                 order.put("totalAmount", totalAmount);
@@ -345,6 +365,13 @@ public class RootController {
                 order.put("shippingEmail", shippingEmail);
                 order.put("shippingMobileNumber", shippingMobileNumber);
                 order.put("status", "Processing");
+
+                // Add to recent orders (last 5)
+                if (recentOrders.size() < 5) {
+                    recentOrders.add(order);
+                }
+
+                totalRevenue = totalRevenue.add(totalAmount);
 
                 List<Map<String, Object>> orderItems = new ArrayList<>();
                 String getOrderItemsSql = "SELECT product_name, category, price, quantity FROM order_items WHERE order_id = ?";
@@ -370,16 +397,48 @@ public class RootController {
             ordersRs.close();
             getOrdersStmt.close();
 
+            // Calculate average order value
+            if (!orders.isEmpty()) {
+                averageOrderValue = totalRevenue.divide(BigDecimal.valueOf(orders.size()), 2, RoundingMode.HALF_UP);
+            }
+
+            // Get total users
+            String countUsersSql = "SELECT COUNT(DISTINCT user_id) as user_count FROM orders";
+            PreparedStatement countUsersStmt = AppConfig.connection.prepareStatement(countUsersSql);
+            ResultSet usersRs = countUsersStmt.executeQuery();
+            if (usersRs.next()) {
+                totalUsers = usersRs.getInt("user_count");
+            }
+            usersRs.close();
+            countUsersStmt.close();
+
+            // Get top category
+            String topCategorySql = "SELECT category, SUM(price * quantity) as total_sales FROM order_items GROUP BY category ORDER BY total_sales DESC LIMIT 1";
+            PreparedStatement topCategoryStmt = AppConfig.connection.prepareStatement(topCategorySql);
+            ResultSet categoryRs = topCategoryStmt.executeQuery();
+            if (categoryRs.next()) {
+                topCategory = categoryRs.getString("category");
+            }
+            categoryRs.close();
+            topCategoryStmt.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
             model.addAttribute("errorMessage", "Failed to retrieve orders due to a database error.");
         }
 
-        model.addAttribute("orders", orders);
-
+        // Get products for inventory
         InventoryService inventoryService = new InventoryService();
         List<ProductData> products = inventoryService.getAllProducts();
-        model.addAttribute("products", products); // Pass the list to the Thymeleaf model
+
+        model.addAttribute("orders", orders);
+        model.addAttribute("products", products);
+        model.addAttribute("recentOrders", recentOrders);
+        model.addAttribute("totalRevenue", String.format("%.2f", totalRevenue));
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("averageOrderValue", String.format("%.2f", averageOrderValue));
+        model.addAttribute("topCategory", topCategory);
+        
         return "index";
     }
 
