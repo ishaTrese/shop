@@ -127,6 +127,17 @@
     display: inline-block;
 }
 
+.status-out-for-delivery {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #856404;
+    border-radius: 0;
+    display: inline-block;
+}
+
 .status-cancelled {
     padding: 0.3rem 0.8rem;
     font-size: 0.8rem;

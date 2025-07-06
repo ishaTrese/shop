@@ -210,4 +210,76 @@ function updateStock(productId) {
         console.error('Error:', error);
         alert('Error loading product details');
     });
-} 
+}
+
+function updateOrderStatus(orderId, newStatus) {
+    if (!newStatus) {
+        alert('Please select a valid status');
+        return;
+    }
+    
+    const updateData = {
+        orderId: orderId,
+        newStatus: newStatus,
+        reason: "Admin status update"
+    };
+
+    fetch('/api/admin/update-order-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.type === 'SUCCESS') {
+            const statusSelect = document.querySelector(`select[data-order-id="${orderId}"]`);
+            const originalBackground = statusSelect.style.backgroundColor;
+            statusSelect.style.backgroundColor = '#d4edda';
+            statusSelect.style.color = '#155724';
+            
+            setTimeout(() => {
+                statusSelect.style.backgroundColor = originalBackground;
+                statusSelect.style.color = 'black';
+            }, 1000);
+            
+            statusSelect.setAttribute('data-current-status', newStatus);
+            localStorage.setItem('adminActiveTab', 'viewAllOrders');
+            window.location.reload();
+        } else {
+            alert('Failed to update order status: ' + (data.message || 'Unknown error.'));
+            const statusSelect = document.querySelector(`select[data-order-id="${orderId}"]`);
+            const currentStatus = statusSelect.getAttribute('data-current-status');
+            statusSelect.value = currentStatus;
+        }
+    })
+    .catch(error => {
+        console.error('Network error during order status update:', error);
+        alert('A network error occurred. Please try again.');
+        const statusSelect = document.querySelector(`select[data-order-id="${orderId}"]`);
+        const currentStatus = statusSelect.getAttribute('data-current-status');
+        statusSelect.value = currentStatus;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelects = document.querySelectorAll('.status-select');
+    console.log('Found status selects:', statusSelects.length);
+    
+    statusSelects.forEach(select => {
+        console.log('Adding event listener to select:', select.dataset.orderId);
+        select.addEventListener('change', function(event) {
+            event.preventDefault();
+            const orderId = parseInt(this.dataset.orderId);
+            const newStatus = this.value;
+            const currentStatus = this.getAttribute('data-current-status');
+            
+            console.log('Status change detected:', orderId, currentStatus, '->', newStatus);
+            
+            if (newStatus !== currentStatus) {
+                updateOrderStatus(orderId, newStatus);
+            }
+        });
+    });
+}); 

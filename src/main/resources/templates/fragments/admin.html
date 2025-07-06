@@ -508,6 +508,14 @@
                 </div>
                 
                 <div class="status-card">
+                    <div class="status-icon out-for-delivery">🚛</div>
+                    <div class="status-content">
+                        <h4 class="status-number" th:text="${#lists.size(orders.?[status == 'Out for Delivery'])}">0</h4>
+                        <p class="status-label">Out for Delivery</p>
+                    </div>
+                </div>
+                
+                <div class="status-card">
                     <div class="status-icon delivered">✅</div>
                     <div class="status-content">
                         <h4 class="status-number" th:text="${#lists.size(orders.?[status == 'Delivered'])}">0</h4>
@@ -544,11 +552,16 @@
                 <td class="admin-date" th:text="${#temporals.format(order.orderDate, 'MMM dd, yyyy')}">Jun 23, 2025</td>
                 <td class="admin-amount" th:text="${'₱' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₱9,100.00</td>
                 <td>
-                    <span class="admin-status"
-                          th:class="${'admin-status ' + (#strings.toLowerCase(order.status != null ? order.status : 'pending'))}"
-                          th:text="${order.status != null ? order.status : 'Pending'}">
-                        Processing
-                    </span>
+                    <div class="status-dropdown-container">
+                        <select class="status-select" th:data-order-id="${order.id}" th:data-current-status="${order.status}">
+                            <option value="Processing" th:selected="${order.status == 'Processing'}">Processing</option>
+                            <option value="Shipped" th:selected="${order.status == 'Shipped'}">Shipped</option>
+                            <option value="Out for Delivery" th:selected="${order.status == 'Out for Delivery'}">Out for Delivery</option>
+                            <option value="Delivered" th:selected="${order.status == 'Delivered'}">Delivered</option>
+                            <option value="Cancelled" th:selected="${order.status == 'Cancelled'}">Cancelled</option>
+                        </select>
+                        <div class="dropdown-hint">Click to change status</div>
+                    </div>
                 </td>
                 <td class="admin-shipping">
                     <div class="shipping-name" th:text="${order.shippingFullName}">Brenda Ray</div>

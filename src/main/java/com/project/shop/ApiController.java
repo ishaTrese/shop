@@ -567,6 +567,138 @@ public class ApiController {
         }
     }
 
+    @PostMapping("/admin/update-order-status")
+    public ResponseEntity<Response> updateOrderStatus(@RequestBody UpdateOrderStatus updateRequest) {
+        if (!AppConfig.userEmail.equalsIgnoreCase("admin@shop.com")) {
+            Response errorResponse = Response.message(
+                    "Unauthorized. Only admins can update order status.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (updateRequest.orderId <= 0) {
+            Response errorResponse = Response.message(
+                    "Invalid order ID provided.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        if (updateRequest.newStatus == null || updateRequest.newStatus.trim().isEmpty()) {
+            Response errorResponse = Response.message(
+                    "Invalid status provided.",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        String[] validStatuses = {"Processing", "Shipped", "Out for Delivery", "Delivered", "Cancelled"};
+        boolean isValidStatus = false;
+        for (String status : validStatuses) {
+            if (status.equals(updateRequest.newStatus)) {
+                isValidStatus = true;
+                break;
+            }
+        }
+
+        if (!isValidStatus) {
+            Response errorResponse = Response.message(
+                    "Invalid status. Valid statuses are: Processing, Shipped, Out for Delivery, Delivered, Cancelled",
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            AppConfig.connection.setAutoCommit(false);
+
+            String checkOrderSql = "SELECT id, status FROM orders WHERE id = ?";
+            PreparedStatement checkOrderStmt = AppConfig.connection.prepareStatement(checkOrderSql);
+            checkOrderStmt.setInt(1, updateRequest.orderId);
+            ResultSet orderRs = checkOrderStmt.executeQuery();
+
+            if (!orderRs.next()) {
+                AppConfig.connection.rollback();
+                Response errorResponse = Response.message(
+                    "Order not found.",
+                    RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            }
+
+            String currentStatus = orderRs.getString("status");
+            
+            if ("Cancelled".equals(updateRequest.newStatus) && !"Cancelled".equals(currentStatus)) {
+                List<Map<String, Object>> orderItems = new ArrayList<>();
+                String getOrderItemsSql = "SELECT product_id, quantity FROM order_items WHERE order_id = ?";
+                PreparedStatement getOrderItemsStmt = AppConfig.connection.prepareStatement(getOrderItemsSql);
+                getOrderItemsStmt.setInt(1, updateRequest.orderId);
+                ResultSet itemsRs = getOrderItemsStmt.executeQuery();
+
+                while (itemsRs.next()) {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("productId", itemsRs.getLong("product_id"));
+                    item.put("quantity", itemsRs.getInt("quantity"));
+                    orderItems.add(item);
+                }
+
+                InventoryService inventoryService = new InventoryService();
+                for (Map<String, Object> item : orderItems) {
+                    Long productId = (Long) item.get("productId");
+                    Integer quantity = (Integer) item.get("quantity");
+                    
+                    if (productId != null && quantity != null) {
+                        ProductData productData = inventoryService.getProductById(productId);
+                        if (productData != null) {
+                            int newStock = productData.getStock() + quantity;
+                            inventoryService.updateStock(productId, newStock);
+                        }
+                    }
+                }
+            }
+
+            String updateOrderSql = "UPDATE orders SET status = ? WHERE id = ?";
+            PreparedStatement updateOrderStmt = AppConfig.connection.prepareStatement(updateOrderSql);
+            updateOrderStmt.setString(1, updateRequest.newStatus);
+            updateOrderStmt.setInt(2, updateRequest.orderId);
+            
+            int rowsUpdated = updateOrderStmt.executeUpdate();
+            
+            if (rowsUpdated == 0) {
+                AppConfig.connection.rollback();
+                Response errorResponse = Response.message(
+                        "Failed to update order status.",
+                        RESPONSE_TYPE.ERROR
+                );
+                return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            AppConfig.connection.commit();
+            AppConfig.connection.setAutoCommit(true);
+
+            Response successResponse = Response.message(
+                    "Order #" + updateRequest.orderId + " status updated to " + updateRequest.newStatus + " successfully.",
+                    RESPONSE_TYPE.SUCCESS
+            );
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+
+        } catch (SQLException e) {
+            try {
+                AppConfig.connection.rollback();
+                AppConfig.connection.setAutoCommit(true);
+            } catch (SQLException rollbackEx) {
+                System.err.println("Error during rollback: " + rollbackEx.getMessage());
+            }
+            e.printStackTrace();
+            Response errorResponse = Response.message(
+                    "Database error during order status update: " + e.getMessage(),
+                    RESPONSE_TYPE.ERROR
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/inventory/update-stock")
     public ResponseEntity<Response> updateStock(@RequestBody Map<String, Object> requestBody) {
         String category = (String) requestBody.get("category");
@@ -584,7 +716,6 @@ public class ApiController {
         }
 
         try {
-            // Find the product in the database
             String sql = "SELECT id, name FROM products WHERE category = ? AND name = ?";
             PreparedStatement stmt = AppConfig.connection.prepareStatement(sql);
             stmt.setString(1, category);
@@ -595,7 +726,6 @@ public class ApiController {
                 Long productId = rs.getLong("id");
                 String foundProductName = rs.getString("name");
                 
-                // Update the stock
                 InventoryService inventoryService = new InventoryService();
                 boolean updated = inventoryService.updateStock(productId, newStock);
                 
